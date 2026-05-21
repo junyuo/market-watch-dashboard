@@ -182,7 +182,7 @@ workflow 會依序執行：
 | 台積電 ADR | `TSM` |
 | S&P 500 proxy | `SPY` |
 | Nasdaq 100 proxy | `QQQ` |
-| 美股大型科技股 | `NVDA`, `MSFT`, `AAPL`, `AMZN`, `META`, `GOOGL`, `AVGO` |
+| 美股大型科技股 | `NVDA`, `MSFT`, `AAPL`, `AMZN`, `META`, `GOOGL`, `AVGO`, `TSLA` |
 | 風險與避險 ETF | `GLD`, `USO`, `TIP` |
 | VIX | `^VIX` |
 | TNX | `^TNX` |
@@ -192,7 +192,7 @@ workflow 會依序執行：
 | JPY/TWD | 由 `USD/TWD / USD/JPY` 交叉計算 |
 | TAIEX | `^TWII`，若資料來源失敗會自動略過或標示資料暫缺 |
 
-TWSE 與 FRED 的模組已保留在 `scripts/lib/`，後續可逐步把台股資料、外資買賣超、VIX 等來源改成更正式的公開資料。
+外資買賣超使用 TWSE `BFI82U` 三大法人買賣金額統計表，取「外資及陸資(不含外資自營商)」的買賣差額並以億元顯示。FRED 模組已保留在 `scripts/lib/`，後續可逐步把 VIX 等來源改成更正式的公開資料。
 
 ## 資料抓取限制
 
@@ -201,7 +201,7 @@ TWSE 與 FRED 的模組已保留在 `scripts/lib/`，後續可逐步把台股資
 - `SPY` 作為 S&P 500 proxy，`QQQ` 作為 Nasdaq 100 proxy。
 - 2412 EPS、現金股利、月營收尚未串接正式資料來源；資料更新時會優先沿用前一次 JSON，沒有前值才顯示 `N/A`。
 - 2412 殖利率只有在現金股利與股價都可用時才計算；否則沿用前一次 JSON 或顯示 `N/A`。
-- 外資買賣超尚未串接正式資料來源；資料更新時會優先沿用前一次 JSON，沒有前值才顯示 `N/A`。
+- 外資買賣超來自 TWSE 三大法人買賣金額統計表；若 TWSE 暫時不可用，會優先沿用前一次 JSON，沒有前值才顯示 `N/A`。
 
 ## 為什麼前端不直接抓 API
 

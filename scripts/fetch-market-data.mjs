@@ -3,6 +3,7 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { deriveJpyTwd } from "./lib/fx.mjs";
+import { fetchForeignInvestorFlowSeries } from "./lib/twse.mjs";
 import { fetchYahooCharts } from "./lib/yahooFinance.mjs";
 import {
   buildMarketItem,
@@ -20,6 +21,7 @@ const marketJsonPath = path.join(outputDir, "market.json");
 const chartDataJsonPath = path.join(outputDir, "chartData.json");
 
 const updatedAt = new Date().toISOString();
+const foreignFlowSymbol = "Foreign Flow";
 
 const symbols = {
   tw0050: "0050.TW",
@@ -102,11 +104,11 @@ const definitions = {
     item("美元指數", symbols.dxy, "美元強弱", "Macro", "美元走強可能影響匯率與國際資金流向", "DXY"),
     {
       name: "外資買賣超",
-      symbol: "Foreign Flow",
-      displaySymbol: "Foreign Flow",
+      symbol: foreignFlowSymbol,
+      displaySymbol: foreignFlowSymbol,
       category: "台股資金面",
       relatedAsset: "Macro",
-      note: "尚未串接 TWSE 外資買賣超資料",
+      note: "TWSE 三大法人買賣金額統計表，單位：億元",
       unavailableNote: "資料暫缺",
     },
   ],
@@ -119,6 +121,10 @@ async function main() {
 
   const yahooSymbols = Object.values(symbols);
   const yahooResults = await fetchYahooCharts(yahooSymbols, { range: "1y", interval: "1d" });
+  const foreignFlowSeries = await fetchForeignInvestorFlowSeries().catch((error) => {
+    console.warn(`[market-data] TWSE foreign investor flow failed: ${error.message}`);
+    return [];
+  });
   const successCount = Object.values(yahooResults).filter((result) => result.ok).length;
 
   if (successCount === 0 && existingJsonFilesPresent()) {
@@ -131,7 +137,7 @@ async function main() {
   }
 
   const jpyTwdSeries = buildJpyTwdSeries(yahooResults);
-  const marketData = buildMarketData(yahooResults, jpyTwdSeries, previousMarketData);
+  const marketData = buildMarketData(yahooResults, jpyTwdSeries, foreignFlowSeries, previousMarketData);
   const chartData = buildChartData(yahooResults, jpyTwdSeries, previousChartData);
 
   await writeJson(marketJsonPath, marketData);
@@ -142,7 +148,7 @@ async function main() {
   console.log(`[market-data] Yahoo symbols fetched: ${successCount}/${yahooSymbols.length}`);
 }
 
-function buildMarketData(yahooResults, jpyTwdSeries, previousMarketData) {
+function buildMarketData(yahooResults, jpyTwdSeries, foreignFlowSeries, previousMarketData) {
   const withYahoo = (groupName, definition) => {
     const current = buildMarketItem(definition, yahooResults[definition.symbol], updatedAt);
     return isUnavailableItem(current) ? previousItem(previousMarketData, groupName, definition) ?? current : current;
@@ -168,6 +174,10 @@ function buildMarketData(yahooResults, jpyTwdSeries, previousMarketData) {
       if (definition.symbol === "JPY/TWD") {
         const current = buildDerivedFxItem(definition, jpyTwdSeries);
         return isUnavailableItem(current) ? previousItem(previousMarketData, "fxMacroItems", definition) ?? current : current;
+      }
+
+      if (definition.symbol === foreignFlowSymbol) {
+        return buildForeignFlowItem(definition, foreignFlowSeries, previousMarketData);
       }
 
       if (!yahooResults[definition.symbol]) {
@@ -281,6 +291,47 @@ function buildDerivedFxItem(definition, series) {
     updatedAt,
     note: definition.note,
   };
+}
+
+function buildForeignFlowItem(definition, series, previousMarketData) {
+  const usable = series.filter((point) => typeof point?.value === "number");
+  const latest = usable[usable.length - 1];
+  const previous = usable[usable.length - 2];
+
+  if (!latest) {
+    return previousItem(previousMarketData, "fxMacroItems", definition) ?? unavailableMarketItem(definition, updatedAt);
+  }
+
+  const latestYi = latest.value / 100000000;
+  const previousYi = previous ? previous.value / 100000000 : undefined;
+  const changeYi = typeof previousYi === "number" ? latestYi - previousYi : undefined;
+
+  return {
+    name: definition.name,
+    symbol: definition.displaySymbol,
+    category: definition.category,
+    price: formatYiAmount(latestYi),
+    change: typeof changeYi === "number" ? formatYiAmount(changeYi) : "N/A",
+    changePercent: "N/A",
+    period5d: formatYiAmount(sumLatest(series, 5) / 100000000),
+    period1m: formatYiAmount(sumLatest(series, 21) / 100000000),
+    relatedAsset: definition.relatedAsset,
+    updatedAt,
+    note: `${definition.note}；資料日期：${latest.date}`,
+  };
+}
+
+function sumLatest(series, count) {
+  return series
+    .filter((point) => typeof point?.value === "number")
+    .slice(-count)
+    .reduce((sum, point) => sum + point.value, 0);
+}
+
+function formatYiAmount(value) {
+  const rounded = round(value, 2);
+  const prefix = rounded > 0 ? "+" : "";
+  return `${prefix}${rounded} 億`;
 }
 
 function deriveYieldSeries(priceSeries, annualDividend) {
