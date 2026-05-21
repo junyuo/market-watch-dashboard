@@ -14,6 +14,16 @@ export type MarketItem = {
   note?: string;
 };
 
+export type DashboardMarketData = {
+  updatedAt: string;
+  summaryItems: MarketItem[];
+  riskIndicators: MarketItem[];
+  tw0050Items: MarketItem[];
+  us00646Items: MarketItem[];
+  cht2412Items: MarketItem[];
+  fxMacroItems: MarketItem[];
+};
+
 export const mockUpdatedAt = "2026-05-21 15:30";
 
 export const summaryItems: MarketItem[] = [
@@ -517,3 +527,13 @@ export const fxMacroItems: MarketItem[] = [
     note: "觀察台股資金動能，非交易訊號",
   },
 ];
+
+export const mockMarketData: DashboardMarketData = {
+  updatedAt: mockUpdatedAt,
+  summaryItems,
+  riskIndicators,
+  tw0050Items,
+  us00646Items,
+  cht2412Items,
+  fxMacroItems,
+};

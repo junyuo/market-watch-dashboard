@@ -1,18 +1,58 @@
+import { useEffect, useState } from "react";
 import { LineChartCard } from "./components/LineChartCard";
 import { MarketSection } from "./components/MarketSection";
 import { SummaryCard } from "./components/SummaryCard";
-import { dashboardCharts } from "./data/chartData";
-import {
-  cht2412Items,
-  fxMacroItems,
-  mockUpdatedAt,
-  riskIndicators,
-  summaryItems,
-  tw0050Items,
-  us00646Items,
-} from "./data/marketData";
+import { mockChartData, type DashboardChartData } from "./data/chartData";
+import { mockMarketData, type DashboardMarketData } from "./data/marketData";
+
+type DataSourceStatus = "loading" | "json" | "fallback";
 
 function App() {
+  const [marketData, setMarketData] = useState<DashboardMarketData>(mockMarketData);
+  const [chartData, setChartData] = useState<DashboardChartData>(mockChartData);
+  const [dataSourceStatus, setDataSourceStatus] = useState<DataSourceStatus>("loading");
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadDashboardData() {
+      try {
+        const [marketResponse, chartResponse] = await Promise.all([
+          fetch(`${import.meta.env.BASE_URL}data/market.json`, { cache: "no-store" }),
+          fetch(`${import.meta.env.BASE_URL}data/chartData.json`, { cache: "no-store" }),
+        ]);
+
+        if (!marketResponse.ok || !chartResponse.ok) {
+          throw new Error("JSON data not available");
+        }
+
+        const [marketJson, chartJson] = (await Promise.all([
+          marketResponse.json(),
+          chartResponse.json(),
+        ])) as [DashboardMarketData, DashboardChartData];
+
+        if (!cancelled) {
+          setMarketData(marketJson);
+          setChartData(chartJson);
+          setDataSourceStatus("json");
+        }
+      } catch (error) {
+        console.warn("[dashboard] Fallback to mock data:", error);
+        if (!cancelled) {
+          setMarketData(mockMarketData);
+          setChartData(mockChartData);
+          setDataSourceStatus("fallback");
+        }
+      }
+    }
+
+    loadDashboardData();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   return (
     <main className="app-shell">
       <section className="hero">
@@ -22,10 +62,16 @@ function App() {
           <p>0050 / 00646 / 2412 / 匯率與市場風險觀察</p>
         </div>
         <div className="hero__status">
-          <span>Mock data</span>
-          <strong>{mockUpdatedAt}</strong>
+          <span>{dataSourceStatus === "json" ? "Daily JSON" : "Fallback data"}</span>
+          <strong>{marketData.updatedAt}</strong>
         </div>
       </section>
+
+      {dataSourceStatus === "fallback" ? (
+        <div className="fallback-banner" role="status">
+          目前顯示備援資料
+        </div>
+      ) : null}
 
       <section className="dashboard-section">
         <div className="section-heading">
@@ -33,7 +79,7 @@ function App() {
           <p>快速查看主要觀察標的的最新數值、漲跌與更新時間。</p>
         </div>
         <div className="summary-grid">
-          {summaryItems.map((item) => (
+          {marketData.summaryItems.map((item) => (
             <SummaryCard key={item.symbol} item={item} />
           ))}
         </div>
@@ -42,31 +88,31 @@ function App() {
       <MarketSection
         title="市場風險溫度計"
         description="先觀察整體市場情緒、利率、能源、通膨與避險狀態，再往下檢視個別資產。"
-        items={riskIndicators}
+        items={marketData.riskIndicators}
       />
 
       <MarketSection
         title="0050 觀察區"
         description="觀察 0050 的主要波動來源，包含台股權值股、半導體鏈與加權指數。"
-        items={tw0050Items}
+        items={marketData.tw0050Items}
       />
 
       <MarketSection
         title="00646 觀察區"
         description="觀察 00646 與美股大型科技股、S&P 500、Nasdaq 100 的連動。"
-        items={us00646Items}
+        items={marketData.us00646Items}
       />
 
       <MarketSection
         title="2412 中華電信觀察區"
         description="觀察中華電信股價、殖利率、營收與同業比較。"
-        items={cht2412Items}
+        items={marketData.cht2412Items}
       />
 
       <MarketSection
         title="匯率與總經觀察區"
         description="觀察美元、日圓、美元指數與台股外資資金面；TNX 已放在市場風險溫度計。"
-        items={fxMacroItems}
+        items={marketData.fxMacroItems}
       />
 
       <section className="dashboard-section">
@@ -75,7 +121,7 @@ function App() {
           <p>使用 mock time series 比較主要標的、匯率與風險指標的相對變化。</p>
         </div>
         <div className="chart-grid">
-          {dashboardCharts.map((chart) => (
+          {chartData.charts.map((chart) => (
             <LineChartCard key={chart.id} chart={chart} />
           ))}
         </div>
@@ -85,8 +131,13 @@ function App() {
         <div>
           <h2>資料更新時間</h2>
           <p>
-            目前版本使用本地 mock data，所有觀察資料更新時間為
-            <strong> {mockUpdatedAt}</strong>。
+            目前資料來源：
+            <strong>
+              {" "}
+              {dataSourceStatus === "json" ? "每日產生 JSON" : "備援 mock data"}
+            </strong>
+            ，資料更新時間為
+            <strong> {marketData.updatedAt}</strong>。
           </p>
         </div>
       </section>

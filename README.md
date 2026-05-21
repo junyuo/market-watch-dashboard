@@ -102,6 +102,115 @@ src/data/chartData.ts
 - `riskChart`
 - `dashboardCharts`
 
+## 每日資料更新
+
+第二階段新增每日資料抓取流程，會產生：
+
+```text
+public/data/market.json
+public/data/chartData.json
+```
+
+前端啟動時會先讀取：
+
+```text
+${BASE_URL}data/market.json
+${BASE_URL}data/chartData.json
+```
+
+如果 JSON 讀取失敗，頁面會自動 fallback 到 `src/data/marketData.ts` 與 `src/data/chartData.ts` 的 mock data，並顯示「目前顯示備援資料」。
+
+### 手動執行資料更新
+
+```bash
+npm run update:data
+```
+
+等同於：
+
+```bash
+node scripts/fetch-market-data.mjs
+```
+
+執行成功後會更新 `public/data/market.json` 與 `public/data/chartData.json`。
+
+### GitHub Actions 排程
+
+資料更新 workflow 位於：
+
+```text
+.github/workflows/update-market-data.yml
+```
+
+支援：
+
+- `workflow_dispatch` 手動執行
+- 週一到週五台灣時間 08:30 自動執行
+
+GitHub Actions cron 使用 UTC，因此排程為：
+
+```text
+30 0 * * 1-5
+```
+
+workflow 會依序執行：
+
+1. checkout
+2. setup node
+3. `npm ci`
+4. `node scripts/fetch-market-data.mjs`
+5. `npm run build`
+6. deploy GitHub Pages
+
+資料抓取步驟使用容錯設計；如果公開資料來源暫時失敗，會顯示 warning，不讓整個部署流程因行情抓取失敗而中斷。
+
+## 資料來源與 Symbol Mapping
+
+第一版資料更新以免費、免 API Key、適合個人 Dashboard 的資料來源為主。
+
+目前主要使用 Yahoo Finance chart endpoint，由 GitHub Actions 抓取後寫入靜態 JSON。前端只讀 JSON，不直接呼叫 Yahoo Finance。
+
+主要 symbol mapping：
+
+| 顯示用途 | 資料 symbol |
+| --- | --- |
+| 0050 元大台灣50 | `0050.TW` |
+| 00646 元大 S&P 500 | `00646.TW` |
+| 2412 中華電信 | `2412.TW` |
+| 台股個股 | `2330.TW`, `2454.TW`, `2308.TW`, `2317.TW`, `3711.TW`, `3045.TW`, `4904.TW` |
+| 台積電 ADR | `TSM` |
+| S&P 500 proxy | `SPY` |
+| Nasdaq 100 proxy | `QQQ` |
+| 美股大型科技股 | `NVDA`, `MSFT`, `AAPL`, `AMZN`, `META`, `GOOGL`, `AVGO` |
+| 風險與避險 ETF | `GLD`, `USO`, `TIP` |
+| VIX | `^VIX` |
+| TNX | `^TNX` |
+| DXY | `DX-Y.NYB` |
+| USD/TWD | `USDTWD=X` |
+| USD/JPY | `JPY=X` |
+| JPY/TWD | 由 `USD/TWD / USD/JPY` 交叉計算 |
+| TAIEX | `^TWII`，若資料來源失敗會自動略過或標示資料暫缺 |
+
+TWSE 與 FRED 的模組已保留在 `scripts/lib/`，後續可逐步把台股資料、外資買賣超、VIX 等來源改成更正式的公開資料。
+
+## 資料抓取限制
+
+- Yahoo Finance 為免費公開資料來源，可能有延遲、缺漏、symbol 變動或暫時不可用。
+- 第一版不追求即時報價，只適合每日觀察。
+- `SPY` 作為 S&P 500 proxy，`QQQ` 作為 Nasdaq 100 proxy。
+- 2412 殖利率、EPS、現金股利與月營收第一版仍可能使用 mock、估算或資料暫缺。
+- 外資買賣超第一版尚未串接正式資料來源。
+
+## 為什麼前端不直接抓 API
+
+前端部署在 GitHub Pages，屬於公開靜態網站。若前端直接呼叫行情 API：
+
+- API Key 會暴露在瀏覽器中。
+- 第三方 API 可能被使用者端 CORS 擋下。
+- 每位訪客都會重複打 API，較不穩定。
+
+因此本專案採用 GitHub Actions 定時抓取資料，產生靜態 JSON，前端只讀取 `public/data/*.json`。
+
 ## 未來如何改接 API
 
 建議不要讓前端直接呼叫需要 API Key 的行情服務。較合適的方式是：

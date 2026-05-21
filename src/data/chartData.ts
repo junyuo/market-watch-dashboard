@@ -24,6 +24,11 @@ export type DashboardChart = {
   dualAxis?: boolean;
 };
 
+export type DashboardChartData = {
+  updatedAt: string;
+  charts: DashboardChart[];
+};
+
 const dates = ["01/02", "01/16", "02/01", "02/15", "03/01", "03/15", "04/01", "04/15", "05/01", "05/21"];
 
 const series = (values: number[]): TimeSeriesPoint[] =>
@@ -165,3 +170,8 @@ export const dashboardCharts: DashboardChart[] = [
   cht2412Chart,
   riskChart,
 ];
+
+export const mockChartData: DashboardChartData = {
+  updatedAt: "2026-05-21 15:30",
+  charts: dashboardCharts,
+};

@@ -21,15 +21,18 @@ const chartColors = ["#2563eb", "#16a34a", "#dc2626", "#9333ea", "#f59e0b"];
 
 export function LineChartCard({ chart }: LineChartCardProps) {
   const [selectedRange, setSelectedRange] = useState<TimeRange>("3M");
+  const hasData = chart.series.some((item) => item.data.length > 0);
 
   const data = useMemo(() => {
-    const dates = chart.series[0]?.data.map((point) => point.date) ?? [];
+    const dates = Array.from(
+      new Set(chart.series.flatMap((item) => item.data.map((point) => point.date))),
+    ).sort();
 
     return dates.map((date, index) => {
       const row: Record<string, string | number> = { date };
 
       chart.series.forEach((item) => {
-        row[item.symbol] = item.data[index]?.value ?? 0;
+        row[item.symbol] = item.data.find((point) => point.date === date)?.value ?? 0;
       });
 
       return row;
@@ -64,47 +67,51 @@ export function LineChartCard({ chart }: LineChartCardProps) {
       </div>
 
       <div className="chart-frame">
-        <ResponsiveContainer width="100%" height={320}>
-          <LineChart data={data} margin={{ top: 8, right: 18, bottom: 8, left: 0 }}>
-            <CartesianGrid stroke="#d8dee9" strokeDasharray="4 4" vertical={false} />
-            <XAxis dataKey="date" tick={{ fontSize: 12 }} tickLine={false} />
-            <YAxis
-              yAxisId="left"
-              tick={{ fontSize: 12 }}
-              tickLine={false}
-              width={56}
-              domain={chart.normalized ? ["dataMin - 4", "dataMax + 4"] : ["auto", "auto"]}
-            />
-            {chart.dualAxis ? (
+        {hasData ? (
+          <ResponsiveContainer width="100%" height={320}>
+            <LineChart data={data} margin={{ top: 8, right: 18, bottom: 8, left: 0 }}>
+              <CartesianGrid stroke="#d8dee9" strokeDasharray="4 4" vertical={false} />
+              <XAxis dataKey="date" tick={{ fontSize: 12 }} tickLine={false} />
               <YAxis
-                yAxisId="right"
-                orientation="right"
+                yAxisId="left"
                 tick={{ fontSize: 12 }}
                 tickLine={false}
                 width={56}
-                domain={["auto", "auto"]}
+                domain={chart.normalized ? ["dataMin - 4", "dataMax + 4"] : ["auto", "auto"]}
               />
-            ) : null}
-            <Tooltip
-              formatter={(value, name) => [value, name]}
-              labelFormatter={(label) => `日期：${label}`}
-            />
-            <Legend verticalAlign="bottom" height={36} />
-            {chart.series.map((item, index) => (
-              <Line
-                key={item.symbol}
-                yAxisId={item.yAxisId ?? "left"}
-                type="monotone"
-                dataKey={item.symbol}
-                name={`${item.name} (${item.symbol})`}
-                stroke={chartColors[index % chartColors.length]}
-                strokeWidth={2.4}
-                dot={false}
-                activeDot={{ r: 5 }}
+              {chart.dualAxis ? (
+                <YAxis
+                  yAxisId="right"
+                  orientation="right"
+                  tick={{ fontSize: 12 }}
+                  tickLine={false}
+                  width={56}
+                  domain={["auto", "auto"]}
+                />
+              ) : null}
+              <Tooltip
+                formatter={(value, name) => [value, name]}
+                labelFormatter={(label) => `日期：${label}`}
               />
-            ))}
-          </LineChart>
-        </ResponsiveContainer>
+              <Legend verticalAlign="bottom" height={36} />
+              {chart.series.map((item, index) => (
+                <Line
+                  key={item.symbol}
+                  yAxisId={item.yAxisId ?? "left"}
+                  type="monotone"
+                  dataKey={item.symbol}
+                  name={`${item.name} (${item.symbol})`}
+                  stroke={chartColors[index % chartColors.length]}
+                  strokeWidth={2.4}
+                  dot={false}
+                  activeDot={{ r: 5 }}
+                />
+              ))}
+            </LineChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="empty-chart">資料暫缺</div>
+        )}
       </div>
     </article>
   );

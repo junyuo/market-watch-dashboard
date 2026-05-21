@@ -109,6 +109,16 @@ button {
   padding: 24px;
 }
 
+.fallback-banner {
+  margin-top: 16px;
+  border: 1px solid #f3c969;
+  border-radius: 8px;
+  background: #fff8e1;
+  color: #7c5800;
+  padding: 12px 16px;
+  font-weight: 700;
+}
+
 .section-heading {
   display: grid;
   gap: 8px;
@@ -307,6 +317,17 @@ button {
 .chart-frame {
   width: 100%;
   min-height: 320px;
+}
+
+.empty-chart {
+  display: grid;
+  min-height: 320px;
+  place-items: center;
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text-muted);
+  font-weight: 700;
 }
 
 .update-panel {
