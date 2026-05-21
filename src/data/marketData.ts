@@ -24,7 +24,7 @@ export type DashboardMarketData = {
   fxMacroItems: MarketItem[];
 };
 
-export const mockUpdatedAt = "2026-05-21 15:30";
+export const fallbackUpdatedAt = "2026-05-21 15:30";
 
 export const summaryItems: MarketItem[] = [
   {
@@ -37,7 +37,7 @@ export const summaryItems: MarketItem[] = [
     period5d: 1.8,
     period1m: 4.2,
     relatedAsset: "0050",
-    updatedAt: mockUpdatedAt,
+    updatedAt: fallbackUpdatedAt,
     note: "觀察台股大型權值股整體表現",
   },
   {
@@ -50,7 +50,7 @@ export const summaryItems: MarketItem[] = [
     period5d: 0.9,
     period1m: 2.7,
     relatedAsset: "00646",
-    updatedAt: mockUpdatedAt,
+    updatedAt: fallbackUpdatedAt,
     note: "受美股指數與匯率共同影響",
   },
   {
@@ -63,7 +63,7 @@ export const summaryItems: MarketItem[] = [
     period5d: -0.4,
     period1m: 1.2,
     relatedAsset: "2412",
-    updatedAt: mockUpdatedAt,
+    updatedAt: fallbackUpdatedAt,
     note: "偏防禦型現金流與殖利率觀察",
   },
   {
@@ -76,7 +76,7 @@ export const summaryItems: MarketItem[] = [
     period5d: -0.5,
     period1m: 1.1,
     relatedAsset: "FX",
-    updatedAt: mockUpdatedAt,
+    updatedAt: fallbackUpdatedAt,
     note: "影響海外 ETF 換匯與台股資金面",
   },
 ];
@@ -92,7 +92,7 @@ export const riskIndicators: MarketItem[] = [
     period5d: 8.5,
     period1m: -3.4,
     relatedAsset: "Risk",
-    updatedAt: mockUpdatedAt,
+    updatedAt: fallbackUpdatedAt,
     note: "反映美股市場恐慌與波動程度；主要影響 00646、美股科技股與整體風險偏好",
   },
   {
@@ -105,7 +105,7 @@ export const riskIndicators: MarketItem[] = [
     period5d: 2.3,
     period1m: 5.1,
     relatedAsset: "Risk",
-    updatedAt: mockUpdatedAt,
+    updatedAt: fallbackUpdatedAt,
     note: "反映資金成本與成長股估值壓力；主要影響 00646、科技股、AI 股與美元走勢",
   },
   {
@@ -118,7 +118,7 @@ export const riskIndicators: MarketItem[] = [
     period5d: -2.6,
     period1m: 4.8,
     relatedAsset: "Risk",
-    updatedAt: mockUpdatedAt,
+    updatedAt: fallbackUpdatedAt,
     note: "作為油價與能源成本的代理指標；主要影響通膨壓力、企業成本與總經情緒",
   },
   {
@@ -131,7 +131,7 @@ export const riskIndicators: MarketItem[] = [
     period5d: 0.8,
     period1m: -0.6,
     relatedAsset: "Risk",
-    updatedAt: mockUpdatedAt,
+    updatedAt: fallbackUpdatedAt,
     note: "作為通膨預期與實質利率變化的觀察指標；主要影響利率預期、債券市場與科技股估值",
   },
   {
@@ -144,7 +144,7 @@ export const riskIndicators: MarketItem[] = [
     period5d: 3.2,
     period1m: 6.9,
     relatedAsset: "Risk",
-    updatedAt: mockUpdatedAt,
+    updatedAt: fallbackUpdatedAt,
     note: "反映市場避險需求、美元與實質利率壓力；主要影響 Risk-off 情緒、美元與利率預期",
   },
 ];
@@ -160,7 +160,7 @@ export const tw0050Items: MarketItem[] = [
     period5d: 1.8,
     period1m: 4.2,
     relatedAsset: "0050",
-    updatedAt: mockUpdatedAt,
+    updatedAt: fallbackUpdatedAt,
     note: "追蹤台灣大型權值股表現",
   },
   {
@@ -173,7 +173,7 @@ export const tw0050Items: MarketItem[] = [
     period5d: 2.4,
     period1m: 7.5,
     relatedAsset: "0050",
-    updatedAt: mockUpdatedAt,
+    updatedAt: fallbackUpdatedAt,
     note: "0050 權重核心，影響整體走勢最明顯",
   },
   {
@@ -186,7 +186,7 @@ export const tw0050Items: MarketItem[] = [
     period5d: -0.8,
     period1m: 2.1,
     relatedAsset: "0050",
-    updatedAt: mockUpdatedAt,
+    updatedAt: fallbackUpdatedAt,
   },
   {
     name: "台達電",
@@ -198,7 +198,7 @@ export const tw0050Items: MarketItem[] = [
     period5d: 3.1,
     period1m: 6.4,
     relatedAsset: "0050",
-    updatedAt: mockUpdatedAt,
+    updatedAt: fallbackUpdatedAt,
   },
   {
     name: "鴻海",
@@ -210,7 +210,7 @@ export const tw0050Items: MarketItem[] = [
     period5d: 0.2,
     period1m: 5.6,
     relatedAsset: "0050",
-    updatedAt: mockUpdatedAt,
+    updatedAt: fallbackUpdatedAt,
   },
   {
     name: "日月光投控",
@@ -222,7 +222,7 @@ export const tw0050Items: MarketItem[] = [
     period5d: 1.1,
     period1m: 3.7,
     relatedAsset: "0050",
-    updatedAt: mockUpdatedAt,
+    updatedAt: fallbackUpdatedAt,
   },
   {
     name: "台積電 ADR",
@@ -234,7 +234,7 @@ export const tw0050Items: MarketItem[] = [
     period5d: 2.7,
     period1m: 8.1,
     relatedAsset: "0050",
-    updatedAt: mockUpdatedAt,
+    updatedAt: fallbackUpdatedAt,
     note: "美股交易時段常牽動隔日台積電與 0050 情緒",
   },
   {
@@ -247,7 +247,7 @@ export const tw0050Items: MarketItem[] = [
     period5d: 1.6,
     period1m: 5.9,
     relatedAsset: "0050",
-    updatedAt: mockUpdatedAt,
+    updatedAt: fallbackUpdatedAt,
   },
   {
     name: "加權指數",
@@ -259,7 +259,7 @@ export const tw0050Items: MarketItem[] = [
     period5d: 1.4,
     period1m: 3.9,
     relatedAsset: "0050",
-    updatedAt: mockUpdatedAt,
+    updatedAt: fallbackUpdatedAt,
   },
 ];
 
@@ -274,7 +274,7 @@ export const us00646Items: MarketItem[] = [
     period5d: 0.9,
     period1m: 2.7,
     relatedAsset: "00646",
-    updatedAt: mockUpdatedAt,
+    updatedAt: fallbackUpdatedAt,
   },
   {
     name: "S&P 500",
@@ -286,7 +286,7 @@ export const us00646Items: MarketItem[] = [
     period5d: 1.2,
     period1m: 3.3,
     relatedAsset: "00646",
-    updatedAt: mockUpdatedAt,
+    updatedAt: fallbackUpdatedAt,
   },
   {
     name: "Nasdaq 100",
@@ -298,7 +298,7 @@ export const us00646Items: MarketItem[] = [
     period5d: 2.1,
     period1m: 4.8,
     relatedAsset: "00646",
-    updatedAt: mockUpdatedAt,
+    updatedAt: fallbackUpdatedAt,
   },
   {
     name: "NVIDIA",
@@ -310,7 +310,7 @@ export const us00646Items: MarketItem[] = [
     period5d: 5.7,
     period1m: 11.8,
     relatedAsset: "00646",
-    updatedAt: mockUpdatedAt,
+    updatedAt: fallbackUpdatedAt,
   },
   {
     name: "Microsoft",
@@ -322,7 +322,7 @@ export const us00646Items: MarketItem[] = [
     period5d: 0.7,
     period1m: 2.6,
     relatedAsset: "00646",
-    updatedAt: mockUpdatedAt,
+    updatedAt: fallbackUpdatedAt,
   },
   {
     name: "Apple",
@@ -334,7 +334,7 @@ export const us00646Items: MarketItem[] = [
     period5d: -0.5,
     period1m: 1.4,
     relatedAsset: "00646",
-    updatedAt: mockUpdatedAt,
+    updatedAt: fallbackUpdatedAt,
   },
   {
     name: "Amazon",
@@ -346,7 +346,7 @@ export const us00646Items: MarketItem[] = [
     period5d: 0.3,
     period1m: 2.9,
     relatedAsset: "00646",
-    updatedAt: mockUpdatedAt,
+    updatedAt: fallbackUpdatedAt,
   },
   {
     name: "Meta",
@@ -358,7 +358,7 @@ export const us00646Items: MarketItem[] = [
     period5d: 2.8,
     period1m: 5.2,
     relatedAsset: "00646",
-    updatedAt: mockUpdatedAt,
+    updatedAt: fallbackUpdatedAt,
   },
   {
     name: "Alphabet",
@@ -370,7 +370,7 @@ export const us00646Items: MarketItem[] = [
     period5d: 1.5,
     period1m: 4.4,
     relatedAsset: "00646",
-    updatedAt: mockUpdatedAt,
+    updatedAt: fallbackUpdatedAt,
   },
   {
     name: "Broadcom",
@@ -382,7 +382,7 @@ export const us00646Items: MarketItem[] = [
     period5d: 3.3,
     period1m: 9.6,
     relatedAsset: "00646",
-    updatedAt: mockUpdatedAt,
+    updatedAt: fallbackUpdatedAt,
   },
 ];
 
@@ -397,7 +397,7 @@ export const cht2412Items: MarketItem[] = [
     period5d: -0.4,
     period1m: 1.2,
     relatedAsset: "2412",
-    updatedAt: mockUpdatedAt,
+    updatedAt: fallbackUpdatedAt,
     note: "觀察股價、殖利率與穩定現金流",
   },
   {
@@ -410,7 +410,7 @@ export const cht2412Items: MarketItem[] = [
     period5d: 0.2,
     period1m: 0.8,
     relatedAsset: "2412",
-    updatedAt: mockUpdatedAt,
+    updatedAt: fallbackUpdatedAt,
   },
   {
     name: "遠傳",
@@ -422,7 +422,7 @@ export const cht2412Items: MarketItem[] = [
     period5d: 1.1,
     period1m: 2.4,
     relatedAsset: "2412",
-    updatedAt: mockUpdatedAt,
+    updatedAt: fallbackUpdatedAt,
   },
   {
     name: "EPS",
@@ -434,8 +434,8 @@ export const cht2412Items: MarketItem[] = [
     period5d: "持平",
     period1m: 1.4,
     relatedAsset: "2412",
-    updatedAt: mockUpdatedAt,
-    note: "以近四季每股盈餘 mock data 表示",
+    updatedAt: fallbackUpdatedAt,
+    note: "前端 JSON 讀取失敗時使用的備援資料",
   },
   {
     name: "現金股利",
@@ -447,7 +447,7 @@ export const cht2412Items: MarketItem[] = [
     period5d: "持平",
     period1m: "持平",
     relatedAsset: "2412",
-    updatedAt: mockUpdatedAt,
+    updatedAt: fallbackUpdatedAt,
   },
   {
     name: "殖利率",
@@ -459,7 +459,7 @@ export const cht2412Items: MarketItem[] = [
     period5d: -0.1,
     period1m: -0.2,
     relatedAsset: "2412",
-    updatedAt: mockUpdatedAt,
+    updatedAt: fallbackUpdatedAt,
   },
   {
     name: "月營收年增率",
@@ -471,7 +471,7 @@ export const cht2412Items: MarketItem[] = [
     period5d: "月資料",
     period1m: 0.4,
     relatedAsset: "2412",
-    updatedAt: mockUpdatedAt,
+    updatedAt: fallbackUpdatedAt,
   },
 ];
 
@@ -486,7 +486,7 @@ export const fxMacroItems: MarketItem[] = [
     period5d: -0.5,
     period1m: 1.1,
     relatedAsset: "FX",
-    updatedAt: mockUpdatedAt,
+    updatedAt: fallbackUpdatedAt,
   },
   {
     name: "日圓兌台幣",
@@ -498,7 +498,7 @@ export const fxMacroItems: MarketItem[] = [
     period5d: 0.9,
     period1m: -1.8,
     relatedAsset: "FX",
-    updatedAt: mockUpdatedAt,
+    updatedAt: fallbackUpdatedAt,
   },
   {
     name: "美元指數",
@@ -510,7 +510,7 @@ export const fxMacroItems: MarketItem[] = [
     period5d: 0.6,
     period1m: 1.9,
     relatedAsset: "Macro",
-    updatedAt: mockUpdatedAt,
+    updatedAt: fallbackUpdatedAt,
     note: "美元走強可能影響匯率與國際資金流向",
   },
   {
@@ -523,13 +523,13 @@ export const fxMacroItems: MarketItem[] = [
     period5d: "買超 212 億",
     period1m: "賣超 128 億",
     relatedAsset: "Macro",
-    updatedAt: mockUpdatedAt,
+    updatedAt: fallbackUpdatedAt,
     note: "觀察台股資金動能，非交易訊號",
   },
 ];
 
-export const mockMarketData: DashboardMarketData = {
-  updatedAt: mockUpdatedAt,
+export const fallbackMarketData: DashboardMarketData = {
+  updatedAt: fallbackUpdatedAt,
   summaryItems,
   riskIndicators,
   tw0050Items,

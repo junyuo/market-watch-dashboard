@@ -2,14 +2,14 @@ import { useEffect, useState } from "react";
 import { LineChartCard } from "./components/LineChartCard";
 import { MarketSection } from "./components/MarketSection";
 import { SummaryCard } from "./components/SummaryCard";
-import { mockChartData, type DashboardChartData } from "./data/chartData";
-import { mockMarketData, type DashboardMarketData } from "./data/marketData";
+import { fallbackChartData, type DashboardChartData } from "./data/chartData";
+import { fallbackMarketData, type DashboardMarketData } from "./data/marketData";
 
 type DataSourceStatus = "loading" | "json" | "fallback";
 
 function App() {
-  const [marketData, setMarketData] = useState<DashboardMarketData>(mockMarketData);
-  const [chartData, setChartData] = useState<DashboardChartData>(mockChartData);
+  const [marketData, setMarketData] = useState<DashboardMarketData>(fallbackMarketData);
+  const [chartData, setChartData] = useState<DashboardChartData>(fallbackChartData);
   const [dataSourceStatus, setDataSourceStatus] = useState<DataSourceStatus>("loading");
 
   useEffect(() => {
@@ -37,10 +37,10 @@ function App() {
           setDataSourceStatus("json");
         }
       } catch (error) {
-        console.warn("[dashboard] Fallback to mock data:", error);
+        console.warn("[dashboard] Fallback to bundled data:", error);
         if (!cancelled) {
-          setMarketData(mockMarketData);
-          setChartData(mockChartData);
+          setMarketData(fallbackMarketData);
+          setChartData(fallbackChartData);
           setDataSourceStatus("fallback");
         }
       }
@@ -62,7 +62,7 @@ function App() {
           <p>0050 / 00646 / 2412 / 匯率與市場風險觀察</p>
         </div>
         <div className="hero__status">
-          <span>{dataSourceStatus === "json" ? "Daily JSON" : "Fallback data"}</span>
+          <span>{dataSourceStatus === "json" ? "每日 JSON" : "備援資料"}</span>
           <strong>{marketData.updatedAt}</strong>
         </div>
       </section>
@@ -118,7 +118,7 @@ function App() {
       <section className="dashboard-section">
         <div className="section-heading">
           <h2>線圖區</h2>
-          <p>使用 mock time series 比較主要標的、匯率與風險指標的相對變化。</p>
+          <p>使用每日 JSON 或備援資料比較主要標的、匯率與風險指標的相對變化。</p>
         </div>
         <div className="chart-grid">
           {chartData.charts.map((chart) => (
@@ -134,7 +134,7 @@ function App() {
             目前資料來源：
             <strong>
               {" "}
-              {dataSourceStatus === "json" ? "每日產生 JSON" : "備援 mock data"}
+              {dataSourceStatus === "json" ? "每日產生 JSON" : "備援資料"}
             </strong>
             ，資料更新時間為
             <strong> {marketData.updatedAt}</strong>。

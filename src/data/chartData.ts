@@ -171,7 +171,7 @@ export const dashboardCharts: DashboardChart[] = [
   riskChart,
 ];
 
-export const mockChartData: DashboardChartData = {
+export const fallbackChartData: DashboardChartData = {
   updatedAt: "2026-05-21 15:30",
   charts: dashboardCharts,
 };

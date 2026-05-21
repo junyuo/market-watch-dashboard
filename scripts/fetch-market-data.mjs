@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -104,7 +104,7 @@ const definitions = {
       displaySymbol: "Foreign Flow",
       category: "台股資金面",
       relatedAsset: "Macro",
-      note: "第一版尚未串接 TWSE 外資買賣超資料",
+      note: "尚未串接 TWSE 外資買賣超資料",
       unavailableNote: "資料暫缺",
     },
   ],
@@ -112,6 +112,8 @@ const definitions = {
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
+  const previousMarketData = await readJsonIfExists(marketJsonPath);
+  const previousChartData = await readJsonIfExists(chartDataJsonPath);
 
   const yahooSymbols = Object.values(symbols);
   const yahooResults = await fetchYahooCharts(yahooSymbols, { range: "1y", interval: "1d" });
@@ -127,8 +129,8 @@ async function main() {
   }
 
   const jpyTwdSeries = buildJpyTwdSeries(yahooResults);
-  const marketData = buildMarketData(yahooResults, jpyTwdSeries);
-  const chartData = buildChartData(yahooResults, jpyTwdSeries);
+  const marketData = buildMarketData(yahooResults, jpyTwdSeries, previousMarketData);
+  const chartData = buildChartData(yahooResults, jpyTwdSeries, previousChartData, previousMarketData);
 
   await writeJson(marketJsonPath, marketData);
   await writeJson(chartDataJsonPath, chartData);
@@ -138,38 +140,47 @@ async function main() {
   console.log(`[market-data] Yahoo symbols fetched: ${successCount}/${yahooSymbols.length}`);
 }
 
-function buildMarketData(yahooResults, jpyTwdSeries) {
-  const withYahoo = (definition) => buildMarketItem(definition, yahooResults[definition.symbol], updatedAt);
+function buildMarketData(yahooResults, jpyTwdSeries, previousMarketData) {
+  const withYahoo = (groupName, definition) => {
+    const current = buildMarketItem(definition, yahooResults[definition.symbol], updatedAt);
+    return isUnavailableItem(current) ? previousItem(previousMarketData, groupName, definition) ?? current : current;
+  };
 
   return {
     updatedAt,
-    summaryItems: definitions.summaryItems.map(withYahoo),
-    riskIndicators: definitions.riskIndicators.map(withYahoo),
-    tw0050Items: definitions.tw0050Items.map(withYahoo),
-    us00646Items: definitions.us00646Items.map(withYahoo),
+    summaryItems: definitions.summaryItems.map((definition) => withYahoo("summaryItems", definition)),
+    riskIndicators: definitions.riskIndicators.map((definition) => withYahoo("riskIndicators", definition)),
+    tw0050Items: definitions.tw0050Items.map((definition) => withYahoo("tw0050Items", definition)),
+    us00646Items: definitions.us00646Items.map((definition) => withYahoo("us00646Items", definition)),
     cht2412Items: [
-      ...definitions.cht2412Items.map(withYahoo),
-      mockItem("EPS", "EPS", "獲利能力", "2412", 4.92, "近四季 EPS 第一版暫用 mock data"),
-      mockItem("現金股利", "Dividend", "股利政策", "2412", 4.75, "現金股利第一版暫用 mock data"),
-      mockItem("殖利率", "Yield", "收益率", "2412", "N/A", "殖利率資料暫缺，未來可由股利與股價計算"),
-      mockItem("月營收年增率", "Revenue YoY", "營收", "2412", "N/A", "月營收資料暫缺，未來可串接公開資訊觀測站或公司月營收資料"),
+      ...definitions.cht2412Items.map((definition) => withYahoo("cht2412Items", definition)),
+      previousItemWithNote(previousMarketData, "cht2412Items", basicItem("EPS", "EPS", "獲利能力", "2412"), "EPS 資料尚未串接正式來源，沿用前一次資料")
+        ?? unavailableBasicItem("EPS", "EPS", "獲利能力", "2412", "EPS 資料尚未串接正式來源"),
+      previousItemWithNote(previousMarketData, "cht2412Items", basicItem("現金股利", "Dividend", "股利政策", "2412"), "現金股利資料尚未串接正式來源，沿用前一次資料")
+        ?? unavailableBasicItem("現金股利", "Dividend", "股利政策", "2412", "現金股利資料尚未串接正式來源"),
+      buildYieldItem(previousMarketData, yahooResults[symbols.cht]?.chart?.data ?? []),
+      previousItemWithNote(previousMarketData, "cht2412Items", basicItem("月營收年增率", "Revenue YoY", "營收", "2412"), "月營收資料尚未串接正式來源，沿用前一次資料")
+        ?? unavailableBasicItem("月營收年增率", "Revenue YoY", "營收", "2412", "月營收資料尚未串接正式來源"),
     ],
     fxMacroItems: definitions.fxMacroItems.map((definition) => {
       if (definition.symbol === "JPY/TWD") {
-        return buildDerivedFxItem(definition, jpyTwdSeries);
+        const current = buildDerivedFxItem(definition, jpyTwdSeries);
+        return isUnavailableItem(current) ? previousItem(previousMarketData, "fxMacroItems", definition) ?? current : current;
       }
 
       if (!yahooResults[definition.symbol]) {
-        return unavailableMarketItem(definition, updatedAt);
+        return previousItem(previousMarketData, "fxMacroItems", definition) ?? unavailableMarketItem(definition, updatedAt);
       }
 
-      return withYahoo(definition);
+      return withYahoo("fxMacroItems", definition);
     }),
   };
 }
 
-function buildChartData(yahooResults, jpyTwdSeries) {
-  const yieldSeries = deriveYieldSeries(yahooResults[symbols.cht]?.chart?.data ?? []);
+function buildChartData(yahooResults, jpyTwdSeries, previousChartData, previousMarketData) {
+  const dividend = currentOrPreviousDividend(previousMarketData);
+  const yieldSeries = deriveYieldSeries(yahooResults[symbols.cht]?.chart?.data ?? [], dividend);
+  const previousYieldSeries = previousChartSeries(previousChartData, "cht2412", "Yield")?.data ?? [];
 
   return {
     updatedAt,
@@ -184,7 +195,7 @@ function buildChartData(yahooResults, jpyTwdSeries) {
           seriesDef("台積電", symbols.tsmc, "0050"),
           seriesDef("加權指數", symbols.taiex, "0050", "TAIEX"),
         ]
-          .map((definition) => buildSeries(definition, yahooResults[definition.symbol], { normalized: true }))
+          .map((definition) => buildSeriesWithPrevious(definition, yahooResults[definition.symbol], previousChartData, "tw0050", { normalized: true }))
           .filter((chartSeries) => chartSeries.data.length > 0),
       },
       {
@@ -196,7 +207,7 @@ function buildChartData(yahooResults, jpyTwdSeries) {
           seriesDef("元大 S&P 500", symbols.us00646, "00646"),
           seriesDef("S&P 500 ETF", symbols.spy, "00646", "SPY"),
           seriesDef("美元兌台幣", symbols.usdTwd, "FX", "USD/TWD"),
-        ].map((definition) => buildSeries(definition, yahooResults[definition.symbol], { normalized: true })),
+        ].map((definition) => buildSeriesWithPrevious(definition, yahooResults[definition.symbol], previousChartData, "us00646", { normalized: true })),
       },
       {
         id: "fx",
@@ -204,19 +215,19 @@ function buildChartData(yahooResults, jpyTwdSeries) {
         description: "使用實際匯率數值，觀察美元與日圓兌台幣趨勢",
         normalized: false,
         series: [
-          buildSeries(seriesDef("美元兌台幣", symbols.usdTwd, "FX", "USD/TWD"), yahooResults[symbols.usdTwd]),
-          buildSeries(seriesDef("日圓兌台幣", "JPY/TWD", "FX", "JPY/TWD", jpyTwdSeries), undefined),
+          buildSeriesWithPrevious(seriesDef("美元兌台幣", symbols.usdTwd, "FX", "USD/TWD"), yahooResults[symbols.usdTwd], previousChartData, "fx"),
+          buildSeriesWithPrevious(seriesDef("日圓兌台幣", "JPY/TWD", "FX", "JPY/TWD", jpyTwdSeries), undefined, previousChartData, "fx"),
         ],
       },
       {
         id: "cht2412",
         title: "2412 股價 vs 殖利率",
-        description: "左軸顯示股價，右軸顯示殖利率；殖利率第一版暫用估算資料",
+        description: "左軸顯示股價，右軸顯示殖利率；資料不足時沿用前一次 JSON 或顯示資料暫缺",
         normalized: false,
         dualAxis: true,
         series: [
-          buildSeries({ ...seriesDef("中華電信股價", symbols.cht, "2412", "2412.TW"), yAxisId: "left" }, yahooResults[symbols.cht]),
-          buildSeries({ ...seriesDef("現金殖利率", "Yield", "2412", "Yield", yieldSeries), yAxisId: "right" }, undefined),
+          buildSeriesWithPrevious({ ...seriesDef("中華電信股價", symbols.cht, "2412", "2412.TW"), yAxisId: "left" }, yahooResults[symbols.cht], previousChartData, "cht2412"),
+          buildSeries({ ...seriesDef("現金殖利率", "Yield", "2412", "Yield", yieldSeries.length ? yieldSeries : previousYieldSeries), yAxisId: "right" }, undefined),
         ],
       },
       {
@@ -228,7 +239,7 @@ function buildChartData(yahooResults, jpyTwdSeries) {
           seriesDef("市場波動率指數", symbols.vix, "Risk", "VIX"),
           seriesDef("10年期美債殖利率", symbols.tnx, "Risk", "TNX"),
           seriesDef("黃金 ETF", symbols.gld, "Risk"),
-        ].map((definition) => buildSeries(definition, yahooResults[definition.symbol], { normalized: true })),
+        ].map((definition) => buildSeriesWithPrevious(definition, yahooResults[definition.symbol], previousChartData, "risk", { normalized: true })),
       },
     ],
   };
@@ -268,8 +279,10 @@ function buildDerivedFxItem(definition, series) {
   };
 }
 
-function deriveYieldSeries(priceSeries) {
-  const annualDividend = 4.75;
+function deriveYieldSeries(priceSeries, annualDividend) {
+  if (typeof annualDividend !== "number" || Number.isNaN(annualDividend) || annualDividend <= 0) {
+    return [];
+  }
 
   return priceSeries
     .filter((point) => typeof point?.value === "number" && point.value > 0)
@@ -301,12 +314,23 @@ function seriesDef(name, symbol, relatedAsset, displaySymbol, data) {
   };
 }
 
-function mockItem(name, symbol, category, relatedAsset, price, note) {
+function basicItem(name, symbol, category, relatedAsset, note) {
+  return {
+    name,
+    symbol,
+    displaySymbol: symbol,
+    category,
+    relatedAsset,
+    unavailableNote: note,
+  };
+}
+
+function unavailableBasicItem(name, symbol, category, relatedAsset, note) {
   return {
     name,
     symbol,
     category,
-    price,
+    price: "N/A",
     change: "N/A",
     changePercent: "N/A",
     period5d: "N/A",
@@ -315,6 +339,90 @@ function mockItem(name, symbol, category, relatedAsset, price, note) {
     updatedAt,
     note,
   };
+}
+
+function buildYieldItem(previousMarketData, priceSeries) {
+  const definition = basicItem("殖利率", "Yield", "收益率", "2412", "殖利率資料尚未取得足夠來源");
+  const dividend = currentOrPreviousDividend(previousMarketData);
+  const latestPrice = priceSeries.findLast?.((point) => typeof point?.value === "number")?.value
+    ?? [...priceSeries].reverse().find((point) => typeof point?.value === "number")?.value;
+
+  if (typeof dividend === "number" && typeof latestPrice === "number" && latestPrice > 0) {
+    const price = round((dividend / latestPrice) * 100, 2);
+    return {
+      name: "殖利率",
+      symbol: "Yield",
+      category: "收益率",
+      price: `${price}%`,
+      change: "N/A",
+      changePercent: "N/A",
+      period5d: "N/A",
+      period1m: "N/A",
+      relatedAsset: "2412",
+      updatedAt,
+      note: "由現金股利與 2412 股價計算",
+    };
+  }
+
+  return previousItemWithNote(previousMarketData, "cht2412Items", definition, "殖利率資料尚未取得足夠來源，沿用前一次資料")
+    ?? unavailableBasicItem("殖利率", "Yield", "收益率", "2412", "殖利率資料尚未取得足夠來源");
+}
+
+function currentOrPreviousDividend(previousMarketData) {
+  const dividend = previousItem(previousMarketData, "cht2412Items", basicItem("現金股利", "Dividend", "股利政策", "2412"));
+  if (!dividend) {
+    return undefined;
+  }
+
+  if (typeof dividend.price === "number") {
+    return dividend.price;
+  }
+
+  const parsed = Number.parseFloat(String(dividend.price).replace("%", ""));
+  return Number.isNaN(parsed) ? undefined : parsed;
+}
+
+function previousItem(previousMarketData, groupName, definition) {
+  const symbol = definition.displaySymbol ?? definition.symbol;
+  return previousMarketData?.[groupName]?.find((item) => item.symbol === symbol);
+}
+
+function previousItemWithNote(previousMarketData, groupName, definition, note) {
+  const item = previousItem(previousMarketData, groupName, definition);
+  return item && !isUnavailableItem(item) ? { ...item, note } : undefined;
+}
+
+function previousChartSeries(previousChartData, chartId, symbol) {
+  return previousChartData?.charts
+    ?.find((chart) => chart.id === chartId)
+    ?.series?.find((series) => series.symbol === symbol);
+}
+
+function buildSeriesWithPrevious(definition, chartResult, previousChartData, chartId, options = {}) {
+  const current = buildSeries(definition, chartResult, options);
+  if (current.data.length > 0) {
+    return current;
+  }
+
+  const previous = previousChartSeries(previousChartData, chartId, current.symbol);
+  return previous ? { ...previous, yAxisId: definition.yAxisId ?? previous.yAxisId } : current;
+}
+
+function isUnavailableItem(item) {
+  return item.price === "N/A" && item.change === "N/A" && item.changePercent === "N/A";
+}
+
+async function readJsonIfExists(filePath) {
+  if (!existsSync(filePath)) {
+    return undefined;
+  }
+
+  try {
+    return JSON.parse(await readFile(filePath, "utf8"));
+  } catch (error) {
+    console.warn(`[market-data] Unable to read previous JSON ${path.relative(projectRoot, filePath)}: ${error.message}`);
+    return undefined;
+  }
 }
 
 async function writeJson(filePath, payload) {

@@ -2,7 +2,7 @@
 
 `market-watch-dashboard` 是一個部署到 GitHub Pages 的個人版金融資訊儀表板，用來觀察 0050、00646、2412、匯率與市場風險指標。
 
-目前第一版只使用本地 mock data，不包含個人資產、真實持股、成本或損益資料。
+目前版本優先讀取每日產生的靜態 JSON；若 JSON 讀取失敗，才使用內建備援資料。不包含個人資產、真實持股、成本或損益資料。
 
 ## 技術架構
 
@@ -70,7 +70,7 @@ GitHub repository 需要在 Pages 設定中啟用 GitHub Actions 作為部署來
 
 如果 Pages 尚未啟用，`actions/configure-pages` 會出現類似 `Get Pages site failed` 或 `Not Found` 的錯誤。這不是 Vite build 失敗，而是 repository 的 Pages 尚未設定為使用 GitHub Actions 部署。
 
-## 如何修改 Mock Data
+## 如何修改備援資料
 
 市場觀察資料集中在：
 
@@ -118,7 +118,7 @@ ${BASE_URL}data/market.json
 ${BASE_URL}data/chartData.json
 ```
 
-如果 JSON 讀取失敗，頁面會自動 fallback 到 `src/data/marketData.ts` 與 `src/data/chartData.ts` 的 mock data，並顯示「目前顯示備援資料」。
+如果 JSON 讀取失敗，頁面會自動 fallback 到 `src/data/marketData.ts` 與 `src/data/chartData.ts` 的備援資料，並顯示「目前顯示備援資料」。
 
 ### 手動執行資料更新
 
@@ -166,7 +166,7 @@ workflow 會依序執行：
 
 ## 資料來源與 Symbol Mapping
 
-第一版資料更新以免費、免 API Key、適合個人 Dashboard 的資料來源為主。
+目前資料更新以免費、免 API Key、適合個人 Dashboard 的資料來源為主。
 
 目前主要使用 Yahoo Finance chart endpoint，由 GitHub Actions 抓取後寫入靜態 JSON。前端只讀 JSON，不直接呼叫 Yahoo Finance。
 
@@ -196,10 +196,11 @@ TWSE 與 FRED 的模組已保留在 `scripts/lib/`，後續可逐步把台股資
 ## 資料抓取限制
 
 - Yahoo Finance 為免費公開資料來源，可能有延遲、缺漏、symbol 變動或暫時不可用。
-- 第一版不追求即時報價，只適合每日觀察。
+- 目前不追求即時報價，只適合每日觀察。
 - `SPY` 作為 S&P 500 proxy，`QQQ` 作為 Nasdaq 100 proxy。
-- 2412 殖利率、EPS、現金股利與月營收第一版仍可能使用 mock、估算或資料暫缺。
-- 外資買賣超第一版尚未串接正式資料來源。
+- 2412 EPS、現金股利、月營收尚未串接正式資料來源；資料更新時會優先沿用前一次 JSON，沒有前值才顯示 `N/A`。
+- 2412 殖利率只有在現金股利與股價都可用時才計算；否則沿用前一次 JSON 或顯示 `N/A`。
+- 外資買賣超尚未串接正式資料來源；資料更新時會優先沿用前一次 JSON，沒有前值才顯示 `N/A`。
 
 ## 為什麼前端不直接抓 API
 
