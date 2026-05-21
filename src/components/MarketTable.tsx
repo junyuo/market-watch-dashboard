@@ -13,6 +13,7 @@ type MarketTableProps = {
   showRiskSignals?: boolean;
   hideNotes?: boolean;
   hideRelatedAsset?: boolean;
+  showTechnicalMetrics?: boolean;
 };
 
 const trendClass = (value: MarketItem["change"] | MarketItem["changePercent"]) => {
@@ -110,6 +111,7 @@ export function MarketTable({
   showRiskSignals = false,
   hideNotes = false,
   hideRelatedAsset = false,
+  showTechnicalMetrics = false,
 }: MarketTableProps) {
   return (
     <div className="table-shell" role="region" aria-label="市場資料表格" tabIndex={0}>
@@ -124,6 +126,8 @@ export function MarketTable({
             <th>漲跌幅</th>
             <th>近 5 日</th>
             <th>近 1 月</th>
+            {showTechnicalMetrics ? <th>MA60 (均線)</th> : null}
+            {showTechnicalMetrics ? <th>乖離率 (Bias)</th> : null}
             {showRiskSignals ? <th>市場風險狀態判斷</th> : null}
             {hideRelatedAsset ? null : <th>影響標的</th>}
             <th>更新時間</th>
@@ -143,6 +147,12 @@ export function MarketTable({
               </td>
               <td className={trendClass(item.period5d)}>{formatValue(item.period5d, "%")}</td>
               <td className={trendClass(item.period1m)}>{formatValue(item.period1m, "%")}</td>
+              {showTechnicalMetrics ? <td>{formatValue(item.ma60 ?? "N/A")}</td> : null}
+              {showTechnicalMetrics ? (
+                <td className={trendClass(item.bias ?? "N/A")}>
+                  {formatValue(item.bias ?? "N/A", "%")}
+                </td>
+              ) : null}
               {showRiskSignals ? (
                 <td className="market-table__risk-signal">
                   <RiskSignalCell item={item} />

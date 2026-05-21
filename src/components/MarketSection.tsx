@@ -8,6 +8,7 @@ type MarketSectionProps = {
   showRiskSignals?: boolean;
   hideNotes?: boolean;
   hideRelatedAsset?: boolean;
+  showTechnicalMetrics?: boolean;
 };
 
 export function MarketSection({
@@ -17,6 +18,7 @@ export function MarketSection({
   showRiskSignals = false,
   hideNotes = false,
   hideRelatedAsset = false,
+  showTechnicalMetrics = false,
 }: MarketSectionProps) {
   return (
     <section className="dashboard-section">
@@ -29,6 +31,7 @@ export function MarketSection({
         showRiskSignals={showRiskSignals}
         hideNotes={hideNotes}
         hideRelatedAsset={hideRelatedAsset}
+        showTechnicalMetrics={showTechnicalMetrics}
       />
     </section>
   );

@@ -9,6 +9,8 @@ export type MarketItem = {
   changePercent: number | string;
   period5d: number | string;
   period1m: number | string;
+  ma60?: number | string;
+  bias?: number | string;
   relatedAsset: RelatedAsset;
   updatedAt: string;
   note?: string;

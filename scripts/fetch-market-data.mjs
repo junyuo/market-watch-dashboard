@@ -71,14 +71,14 @@ const definitions = {
     item("黃金 ETF", symbols.gld, "避險情緒", "Risk", "反映市場避險需求、美元與實質利率壓力；主要影響 Risk-off 情緒、美元與利率預期"),
   ],
   tw0050Items: [
-    item("元大台灣50", symbols.tw0050, "ETF", "0050", "追蹤台灣大型權值股表現"),
-    item("台積電", symbols.tsmc, "0050 核心權重", "0050", "0050 主要波動來源"),
-    item("聯發科", symbols.mediatek, "IC 設計", "0050"),
-    item("台達電", symbols.delta, "電源與工業自動化", "0050"),
-    item("鴻海", symbols.honhai, "電子代工", "0050"),
-    item("日月光投控", symbols.ase, "封測", "0050"),
-    item("台積電 ADR", symbols.tsmAdr, "ADR", "0050", "美股交易時段常牽動隔日台積電與 0050 情緒"),
-    item("加權指數", symbols.taiex, "台股指數", "0050", "若 Yahoo Finance 暫無資料，圖表會自動略過", "TAIEX"),
+    technicalItem("元大台灣50", symbols.tw0050, "ETF", "0050", "追蹤台灣大型權值股表現"),
+    technicalItem("台積電", symbols.tsmc, "0050 核心權重", "0050", "0050 主要波動來源"),
+    technicalItem("聯發科", symbols.mediatek, "IC 設計", "0050"),
+    technicalItem("台達電", symbols.delta, "電源與工業自動化", "0050"),
+    technicalItem("鴻海", symbols.honhai, "電子代工", "0050"),
+    technicalItem("日月光投控", symbols.ase, "封測", "0050"),
+    technicalItem("台積電 ADR", symbols.tsmAdr, "ADR", "0050", "美股交易時段常牽動隔日台積電與 0050 情緒"),
+    technicalItem("加權指數", symbols.taiex, "台股指數", "0050", "若 Yahoo Finance 暫無資料，圖表會自動略過", "TAIEX"),
   ],
   us00646Items: [
     item("元大 S&P 500", symbols.us00646, "ETF", "00646"),
@@ -356,6 +356,13 @@ function item(name, symbol, category, relatedAsset, note, displaySymbol) {
     relatedAsset,
     note,
     unavailableNote: "資料暫缺",
+  };
+}
+
+function technicalItem(name, symbol, category, relatedAsset, note, displaySymbol) {
+  return {
+    ...item(name, symbol, category, relatedAsset, note, displaySymbol),
+    includeTechnicalMetrics: true,
   };
 }
 

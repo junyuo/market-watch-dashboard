@@ -49,6 +49,27 @@ export function periodChange(series = [], sessionsBack) {
   return round(((latest.value - base.value) / base.value) * 100, 2);
 }
 
+export function movingAverage(series = [], sessions = 60) {
+  const usable = series.filter((point) => typeof point?.value === "number");
+  if (usable.length < sessions) {
+    return "N/A";
+  }
+
+  const values = usable.slice(-sessions).map((point) => point.value);
+  const average = values.reduce((sum, value) => sum + value, 0) / sessions;
+  return round(average, 4);
+}
+
+export function biasRate(series = [], sessions = 60) {
+  const latest = latestPoint(series);
+  const average = movingAverage(series, sessions);
+  if (!latest || typeof average !== "number" || average === 0) {
+    return "N/A";
+  }
+
+  return round(((latest.value - average) / average) * 100, 2);
+}
+
 export function normalizeSeries(series = []) {
   const first = series.find((point) => typeof point?.value === "number" && point.value !== 0);
   if (!first) {
@@ -80,6 +101,12 @@ export function buildMarketItem(definition, chartResult, updatedAt) {
 
   const series = chartResult.chart.data ?? [];
   const metrics = calculateChange(series);
+  const technicalMetrics = definition.includeTechnicalMetrics
+    ? {
+        ma60: movingAverage(series, 60),
+        bias: biasRate(series, 60),
+      }
+    : {};
 
   return {
     name: definition.name,
@@ -90,6 +117,7 @@ export function buildMarketItem(definition, chartResult, updatedAt) {
     changePercent: metrics.changePercent,
     period5d: periodChange(series, 5),
     period1m: periodChange(series, 21),
+    ...technicalMetrics,
     relatedAsset: definition.relatedAsset,
     updatedAt,
     note: definition.note,
@@ -106,6 +134,7 @@ export function unavailableMarketItem(definition, updatedAt) {
     changePercent: "N/A",
     period5d: "N/A",
     period1m: "N/A",
+    ...(definition.includeTechnicalMetrics ? { ma60: "N/A", bias: "N/A" } : {}),
     relatedAsset: definition.relatedAsset,
     updatedAt,
     note: definition.unavailableNote ?? "資料暫缺",
