@@ -54,10 +54,10 @@ export function LineChartCard({ chart }: LineChartCardProps) {
     const visibleDates = startDate ? dates.filter((date) => date >= startDate) : dates;
 
     return visibleDates.map((date) => {
-      const row: Record<string, string | number> = { date };
+      const row: Record<string, string | number | null> = { date };
 
       chart.series.forEach((item) => {
-        row[item.symbol] = item.data.find((point) => point.date === date)?.value ?? 0;
+        row[item.symbol] = item.data.find((point) => point.date === date)?.value ?? null;
       });
 
       return row;
@@ -128,6 +128,7 @@ export function LineChartCard({ chart }: LineChartCardProps) {
                   name={`${item.name} (${item.symbol})`}
                   stroke={chartColors[index % chartColors.length]}
                   strokeWidth={2.4}
+                  connectNulls
                   dot={false}
                   activeDot={{ r: 5 }}
                 />
