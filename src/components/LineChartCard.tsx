@@ -19,6 +19,28 @@ const timeRanges: TimeRange[] = ["1M", "3M", "6M", "YTD", "1Y"];
 
 const chartColors = ["#2563eb", "#16a34a", "#dc2626", "#9333ea", "#f59e0b"];
 
+const rangeStartDate = (range: TimeRange, latestDate: string) => {
+  const latest = new Date(`${latestDate}T00:00:00`);
+  if (Number.isNaN(latest.getTime()) || range === "1Y") {
+    return undefined;
+  }
+
+  const start = new Date(latest);
+  if (range === "YTD") {
+    start.setMonth(0, 1);
+    return start.toISOString().slice(0, 10);
+  }
+
+  const monthsByRange: Partial<Record<TimeRange, number>> = {
+    "1M": 1,
+    "3M": 3,
+    "6M": 6,
+  };
+
+  start.setMonth(start.getMonth() - (monthsByRange[range] ?? 12));
+  return start.toISOString().slice(0, 10);
+};
+
 export function LineChartCard({ chart }: LineChartCardProps) {
   const [selectedRange, setSelectedRange] = useState<TimeRange>("3M");
   const hasData = chart.series.some((item) => item.data.length > 0);
@@ -28,7 +50,10 @@ export function LineChartCard({ chart }: LineChartCardProps) {
       new Set(chart.series.flatMap((item) => item.data.map((point) => point.date))),
     ).sort();
 
-    return dates.map((date, index) => {
+    const startDate = dates.length ? rangeStartDate(selectedRange, dates[dates.length - 1]) : undefined;
+    const visibleDates = startDate ? dates.filter((date) => date >= startDate) : dates;
+
+    return visibleDates.map((date) => {
       const row: Record<string, string | number> = { date };
 
       chart.series.forEach((item) => {
@@ -37,7 +62,7 @@ export function LineChartCard({ chart }: LineChartCardProps) {
 
       return row;
     });
-  }, [chart.series]);
+  }, [chart.series, selectedRange]);
 
   return (
     <article className="chart-card">
