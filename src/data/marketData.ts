@@ -384,6 +384,18 @@ export const us00646Items: MarketItem[] = [
     relatedAsset: "00646",
     updatedAt: fallbackUpdatedAt,
   },
+  {
+    name: "Tesla",
+    symbol: "TSLA",
+    category: "電動車與能源",
+    price: 182.6,
+    change: 3.4,
+    changePercent: 1.9,
+    period5d: -2.1,
+    period1m: 6.8,
+    relatedAsset: "00646",
+    updatedAt: fallbackUpdatedAt,
+  },
 ];
 
 export const cht2412Items: MarketItem[] = [

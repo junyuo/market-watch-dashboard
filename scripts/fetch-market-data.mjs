@@ -42,6 +42,7 @@ const symbols = {
   meta: "META",
   googl: "GOOGL",
   avgo: "AVGO",
+  tsla: "TSLA",
   gld: "GLD",
   uso: "USO",
   tip: "TIP",
@@ -88,6 +89,7 @@ const definitions = {
     item("Meta", symbols.meta, "社群與廣告", "00646"),
     item("Alphabet", symbols.googl, "搜尋與雲端", "00646"),
     item("Broadcom", symbols.avgo, "半導體", "00646"),
+    item("Tesla", symbols.tsla, "電動車與能源", "00646"),
   ],
   cht2412Items: [
     item("中華電信", symbols.cht, "電信股", "2412", "觀察股價、殖利率與穩定現金流"),
