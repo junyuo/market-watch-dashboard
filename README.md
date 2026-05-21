@@ -61,6 +61,15 @@ build 成功後會產生 `dist/`，供 GitHub Pages 部署使用。
 
 GitHub repository 需要在 Pages 設定中啟用 GitHub Actions 作為部署來源。
 
+請到 GitHub repository 執行一次設定：
+
+1. 進入 `Settings`。
+2. 進入 `Pages`。
+3. 在 `Build and deployment` 的 `Source` 選擇 `GitHub Actions`。
+4. 儲存後重新執行 `Deploy to GitHub Pages` workflow，或 push 到 `main` branch。
+
+如果 Pages 尚未啟用，`actions/configure-pages` 會出現類似 `Get Pages site failed` 或 `Not Found` 的錯誤。這不是 Vite build 失敗，而是 repository 的 Pages 尚未設定為使用 GitHub Actions 部署。
+
 ## 如何修改 Mock Data
 
 市場觀察資料集中在：
