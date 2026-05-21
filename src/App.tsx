@@ -90,6 +90,7 @@ function App() {
         items={marketData.riskIndicators}
         showRiskSignals
         hideNotes
+        hideRelatedAsset
       />
 
       <MarketSection

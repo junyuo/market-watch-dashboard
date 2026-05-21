@@ -12,6 +12,7 @@ type MarketTableProps = {
   items: MarketItem[];
   showRiskSignals?: boolean;
   hideNotes?: boolean;
+  hideRelatedAsset?: boolean;
 };
 
 const trendClass = (value: MarketItem["change"] | MarketItem["changePercent"]) => {
@@ -104,7 +105,12 @@ const RiskSignalCell = ({ item }: { item: MarketItem }) => {
   );
 };
 
-export function MarketTable({ items, showRiskSignals = false, hideNotes = false }: MarketTableProps) {
+export function MarketTable({
+  items,
+  showRiskSignals = false,
+  hideNotes = false,
+  hideRelatedAsset = false,
+}: MarketTableProps) {
   return (
     <div className="table-shell" role="region" aria-label="市場資料表格" tabIndex={0}>
       <table className="market-table">
@@ -119,7 +125,7 @@ export function MarketTable({ items, showRiskSignals = false, hideNotes = false 
             <th>近 5 日</th>
             <th>近 1 月</th>
             {showRiskSignals ? <th>市場風險狀態判斷</th> : null}
-            <th>影響標的</th>
+            {hideRelatedAsset ? null : <th>影響標的</th>}
             <th>更新時間</th>
             {hideNotes ? null : <th>觀察說明</th>}
           </tr>
@@ -142,7 +148,7 @@ export function MarketTable({ items, showRiskSignals = false, hideNotes = false 
                   <RiskSignalCell item={item} />
                 </td>
               ) : null}
-              <td>{item.relatedAsset}</td>
+              {hideRelatedAsset ? null : <td>{item.relatedAsset}</td>}
               <td>{item.updatedAt}</td>
               {hideNotes ? null : <td className="market-table__note">{item.note ?? "—"}</td>}
             </tr>

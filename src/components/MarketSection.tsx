@@ -7,6 +7,7 @@ type MarketSectionProps = {
   items: MarketItem[];
   showRiskSignals?: boolean;
   hideNotes?: boolean;
+  hideRelatedAsset?: boolean;
 };
 
 export function MarketSection({
@@ -15,6 +16,7 @@ export function MarketSection({
   items,
   showRiskSignals = false,
   hideNotes = false,
+  hideRelatedAsset = false,
 }: MarketSectionProps) {
   return (
     <section className="dashboard-section">
@@ -22,7 +24,12 @@ export function MarketSection({
         <h2>{title}</h2>
         <p>{description}</p>
       </div>
-      <MarketTable items={items} showRiskSignals={showRiskSignals} hideNotes={hideNotes} />
+      <MarketTable
+        items={items}
+        showRiskSignals={showRiskSignals}
+        hideNotes={hideNotes}
+        hideRelatedAsset={hideRelatedAsset}
+      />
     </section>
   );
 }
