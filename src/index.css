@@ -231,6 +231,76 @@ button {
   line-height: 1.5;
 }
 
+.market-table__risk-signal {
+  min-width: 260px;
+}
+
+.risk-signal {
+  display: grid;
+  gap: 6px;
+  line-height: 1.45;
+}
+
+.risk-signal__badge {
+  width: fit-content;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-soft);
+  color: var(--text-strong);
+  padding: 4px 9px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.risk-signal__description {
+  color: var(--text-muted);
+  font-size: 0.84rem;
+}
+
+.risk-signal__badge--calm {
+  border-color: #86efac;
+  background: #dcfce7;
+  color: #166534;
+}
+
+.risk-signal__badge--warning {
+  border-color: #fde68a;
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.risk-signal__badge--stress {
+  border-color: #fecaca;
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.risk-signal__badge--rising {
+  border-color: #fed7aa;
+  background: #ffedd5;
+  color: #9a3412;
+}
+
+.risk-signal__badge--falling {
+  border-color: #bfdbfe;
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.risk-signal__badge--flat,
+.risk-signal__badge--neutral {
+  border-color: #cbd5e1;
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.risk-signal__badge--unavailable {
+  border-color: #e2e8f0;
+  background: #f8fafc;
+  color: var(--neutral);
+}
+
 .trend-up {
   color: var(--up);
 }
