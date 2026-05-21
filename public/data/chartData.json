@@ -6004,9 +6004,9 @@
       ]
     },
     {
-      "id": "fx",
-      "title": "USD/TWD vs JPY/TWD",
-      "description": "使用實際匯率數值，觀察美元與日圓兌台幣趨勢",
+      "id": "usdTwd",
+      "title": "USD/TWD 美元兌台幣",
+      "description": "使用實際匯率數值，觀察美元兌台幣趨勢",
       "normalized": false,
       "series": [
         {
@@ -7055,7 +7055,15 @@
               "value": 31.566
             }
           ]
-        },
+        }
+      ]
+    },
+    {
+      "id": "jpyTwd",
+      "title": "JPY/TWD 日圓兌台幣",
+      "description": "使用實際匯率數值，觀察日圓兌台幣趨勢",
+      "normalized": false,
+      "series": [
         {
           "name": "日圓兌台幣",
           "symbol": "JPY/TWD",

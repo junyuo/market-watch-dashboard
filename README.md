@@ -97,7 +97,8 @@ src/data/chartData.ts
 
 - `tw0050Chart`
 - `us00646Chart`
-- `fxChart`
+- `usdTwdChart`
+- `jpyTwdChart`
 - `cht2412Chart`
 - `riskChart`
 - `dashboardCharts`

@@ -210,13 +210,21 @@ function buildChartData(yahooResults, jpyTwdSeries, previousChartData, previousM
         ].map((definition) => buildSeriesWithPrevious(definition, yahooResults[definition.symbol], previousChartData, "us00646", { normalized: true })),
       },
       {
-        id: "fx",
-        title: "USD/TWD vs JPY/TWD",
-        description: "使用實際匯率數值，觀察美元與日圓兌台幣趨勢",
+        id: "usdTwd",
+        title: "USD/TWD 美元兌台幣",
+        description: "使用實際匯率數值，觀察美元兌台幣趨勢",
         normalized: false,
         series: [
-          buildSeriesWithPrevious(seriesDef("美元兌台幣", symbols.usdTwd, "FX", "USD/TWD"), yahooResults[symbols.usdTwd], previousChartData, "fx"),
-          buildSeriesWithPrevious(seriesDef("日圓兌台幣", "JPY/TWD", "FX", "JPY/TWD", jpyTwdSeries), undefined, previousChartData, "fx"),
+          buildSeriesWithPrevious(seriesDef("美元兌台幣", symbols.usdTwd, "FX", "USD/TWD"), yahooResults[symbols.usdTwd], previousChartData, "usdTwd"),
+        ],
+      },
+      {
+        id: "jpyTwd",
+        title: "JPY/TWD 日圓兌台幣",
+        description: "使用實際匯率數值，觀察日圓兌台幣趨勢",
+        normalized: false,
+        series: [
+          buildSeriesWithPrevious(seriesDef("日圓兌台幣", "JPY/TWD", "FX", "JPY/TWD", jpyTwdSeries), undefined, previousChartData, "jpyTwd"),
         ],
       },
       {
@@ -393,9 +401,13 @@ function previousItemWithNote(previousMarketData, groupName, definition, note) {
 }
 
 function previousChartSeries(previousChartData, chartId, symbol) {
-  return previousChartData?.charts
-    ?.find((chart) => chart.id === chartId)
-    ?.series?.find((series) => series.symbol === symbol);
+  const chart = previousChartData?.charts?.find((item) => item.id === chartId);
+  const legacyFxChart = chartId === "usdTwd" || chartId === "jpyTwd"
+    ? previousChartData?.charts?.find((item) => item.id === "fx")
+    : undefined;
+
+  return chart?.series?.find((series) => series.symbol === symbol)
+    ?? legacyFxChart?.series?.find((series) => series.symbol === symbol);
 }
 
 function buildSeriesWithPrevious(definition, chartResult, previousChartData, chartId, options = {}) {

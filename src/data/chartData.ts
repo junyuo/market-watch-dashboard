@@ -91,10 +91,10 @@ export const us00646Chart: DashboardChart = {
   ],
 };
 
-export const fxChart: DashboardChart = {
-  id: "fx-rates",
-  title: "USD/TWD vs JPY/TWD",
-  description: "使用實際匯率數值，觀察美元與日圓兌台幣趨勢。",
+export const usdTwdChart: DashboardChart = {
+  id: "usd-twd-rate",
+  title: "USD/TWD 美元兌台幣",
+  description: "使用實際匯率數值，觀察美元兌台幣趨勢。",
   normalized: false,
   series: [
     {
@@ -103,6 +103,15 @@ export const fxChart: DashboardChart = {
       relatedAsset: "FX",
       data: series([31.4, 31.55, 31.68, 31.82, 31.74, 31.95, 32.08, 32.01, 31.98, 31.92]),
     },
+  ],
+};
+
+export const jpyTwdChart: DashboardChart = {
+  id: "jpy-twd-rate",
+  title: "JPY/TWD 日圓兌台幣",
+  description: "使用實際匯率數值，觀察日圓兌台幣趨勢。",
+  normalized: false,
+  series: [
     {
       name: "日圓兌台幣",
       symbol: "JPY/TWD",
@@ -166,7 +175,8 @@ export const riskChart: DashboardChart = {
 export const dashboardCharts: DashboardChart[] = [
   tw0050Chart,
   us00646Chart,
-  fxChart,
+  usdTwdChart,
+  jpyTwdChart,
   cht2412Chart,
   riskChart,
 ];
