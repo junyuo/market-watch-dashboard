@@ -97,6 +97,7 @@ function App() {
         title="0050 觀察區"
         description="觀察 0050 的主要波動來源，包含台股權值股、半導體鏈與加權指數。"
         items={marketData.tw0050Items}
+        hideRelatedAsset
       />
 
       <MarketSection
