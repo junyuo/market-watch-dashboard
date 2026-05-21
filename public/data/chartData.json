@@ -8115,10 +8115,9 @@
     },
     {
       "id": "cht2412",
-      "title": "2412 股價 vs 殖利率",
-      "description": "左軸顯示股價，右軸顯示殖利率；資料不足時沿用前一次 JSON 或顯示資料暫缺",
+      "title": "2412 中華電信股價",
+      "description": "使用實際股價數值，觀察中華電信股價趨勢",
       "normalized": false,
-      "dualAxis": true,
       "series": [
         {
           "name": "中華電信股價",
@@ -9097,15 +9096,7 @@
               "date": "2026-05-21",
               "value": 137.5
             }
-          ],
-          "yAxisId": "left"
-        },
-        {
-          "name": "現金殖利率",
-          "symbol": "Yield",
-          "relatedAsset": "2412",
-          "data": [],
-          "yAxisId": "right"
+          ]
         }
       ]
     },

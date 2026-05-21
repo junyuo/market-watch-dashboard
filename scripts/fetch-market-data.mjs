@@ -130,7 +130,7 @@ async function main() {
 
   const jpyTwdSeries = buildJpyTwdSeries(yahooResults);
   const marketData = buildMarketData(yahooResults, jpyTwdSeries, previousMarketData);
-  const chartData = buildChartData(yahooResults, jpyTwdSeries, previousChartData, previousMarketData);
+  const chartData = buildChartData(yahooResults, jpyTwdSeries, previousChartData);
 
   await writeJson(marketJsonPath, marketData);
   await writeJson(chartDataJsonPath, chartData);
@@ -177,11 +177,7 @@ function buildMarketData(yahooResults, jpyTwdSeries, previousMarketData) {
   };
 }
 
-function buildChartData(yahooResults, jpyTwdSeries, previousChartData, previousMarketData) {
-  const dividend = currentOrPreviousDividend(previousMarketData);
-  const yieldSeries = deriveYieldSeries(yahooResults[symbols.cht]?.chart?.data ?? [], dividend);
-  const previousYieldSeries = previousChartSeries(previousChartData, "cht2412", "Yield")?.data ?? [];
-
+function buildChartData(yahooResults, jpyTwdSeries, previousChartData) {
   return {
     updatedAt,
     charts: [
@@ -229,13 +225,11 @@ function buildChartData(yahooResults, jpyTwdSeries, previousChartData, previousM
       },
       {
         id: "cht2412",
-        title: "2412 股價 vs 殖利率",
-        description: "左軸顯示股價，右軸顯示殖利率；資料不足時沿用前一次 JSON 或顯示資料暫缺",
+        title: "2412 中華電信股價",
+        description: "使用實際股價數值，觀察中華電信股價趨勢",
         normalized: false,
-        dualAxis: true,
         series: [
-          buildSeriesWithPrevious({ ...seriesDef("中華電信股價", symbols.cht, "2412", "2412.TW"), yAxisId: "left" }, yahooResults[symbols.cht], previousChartData, "cht2412"),
-          buildSeries({ ...seriesDef("現金殖利率", "Yield", "2412", "Yield", yieldSeries.length ? yieldSeries : previousYieldSeries), yAxisId: "right" }, undefined),
+          buildSeriesWithPrevious(seriesDef("中華電信股價", symbols.cht, "2412", "2412.TW"), yahooResults[symbols.cht], previousChartData, "cht2412"),
         ],
       },
       {

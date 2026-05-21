@@ -123,24 +123,15 @@ export const jpyTwdChart: DashboardChart = {
 
 export const cht2412Chart: DashboardChart = {
   id: "cht-price-yield",
-  title: "2412 股價 vs 殖利率",
-  description: "左軸顯示股價，右軸顯示現金殖利率。",
+  title: "2412 中華電信股價",
+  description: "使用實際股價數值，觀察中華電信股價趨勢。",
   normalized: false,
-  dualAxis: true,
   series: [
     {
       name: "中華電信股價",
       symbol: "2412",
       relatedAsset: "2412",
-      yAxisId: "left",
       data: series([121.5, 122, 123.5, 123, 124, 125.5, 126, 125, 126.2, 126.5]),
-    },
-    {
-      name: "現金殖利率",
-      symbol: "Yield",
-      relatedAsset: "2412",
-      yAxisId: "right",
-      data: series([3.91, 3.89, 3.85, 3.86, 3.83, 3.78, 3.77, 3.8, 3.76, 3.75]),
     },
   ],
 };
