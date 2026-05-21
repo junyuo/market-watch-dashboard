@@ -6,16 +6,23 @@ type MarketSectionProps = {
   description: string;
   items: MarketItem[];
   showRiskSignals?: boolean;
+  hideNotes?: boolean;
 };
 
-export function MarketSection({ title, description, items, showRiskSignals = false }: MarketSectionProps) {
+export function MarketSection({
+  title,
+  description,
+  items,
+  showRiskSignals = false,
+  hideNotes = false,
+}: MarketSectionProps) {
   return (
     <section className="dashboard-section">
       <div className="section-heading">
         <h2>{title}</h2>
         <p>{description}</p>
       </div>
-      <MarketTable items={items} showRiskSignals={showRiskSignals} />
+      <MarketTable items={items} showRiskSignals={showRiskSignals} hideNotes={hideNotes} />
     </section>
   );
 }

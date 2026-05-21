@@ -89,6 +89,7 @@ function App() {
         description="先觀察整體市場情緒、利率、能源、通膨與避險狀態，再往下檢視個別資產。"
         items={marketData.riskIndicators}
         showRiskSignals
+        hideNotes
       />
 
       <MarketSection
