@@ -59,7 +59,6 @@ function App() {
         <div>
           <p className="eyebrow">Personal market watch</p>
           <h1>投資觀察儀表板</h1>
-          <p>0050 / 00646 / 2412 / 匯率與市場風險觀察</p>
         </div>
         <div className="hero__status">
           <span>{dataSourceStatus === "json" ? "每日 JSON" : "備援資料"}</span>
@@ -101,12 +100,6 @@ function App() {
         title="00646 觀察區"
         description="觀察 00646 與美股大型科技股、S&P 500、Nasdaq 100 的連動。"
         items={marketData.us00646Items}
-      />
-
-      <MarketSection
-        title="2412 中華電信觀察區"
-        description="觀察中華電信股價、殖利率、營收與同業比較。"
-        items={marketData.cht2412Items}
       />
 
       <MarketSection
