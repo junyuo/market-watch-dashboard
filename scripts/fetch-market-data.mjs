@@ -20,7 +20,7 @@ const outputDir = path.join(projectRoot, "public", "data");
 const marketJsonPath = path.join(outputDir, "market.json");
 const chartDataJsonPath = path.join(outputDir, "chartData.json");
 
-const updatedAt = new Date().toISOString();
+const updatedAt = formatTaipeiDateTime();
 const foreignFlowSymbol = "Foreign Flow";
 
 const symbols = {
@@ -439,7 +439,8 @@ function currentOrPreviousDividend(previousMarketData) {
 
 function previousItem(previousMarketData, groupName, definition) {
   const symbol = definition.displaySymbol ?? definition.symbol;
-  return previousMarketData?.[groupName]?.find((item) => item.symbol === symbol);
+  const item = previousMarketData?.[groupName]?.find((entry) => entry.symbol === symbol);
+  return item ? { ...item, updatedAt: normalizeDateTime(item.updatedAt) } : undefined;
 }
 
 function previousItemWithNote(previousMarketData, groupName, definition, note) {
@@ -492,6 +493,35 @@ function existingJsonFilesPresent() {
   return existsSync(marketJsonPath) && existsSync(chartDataJsonPath);
 }
 
+function formatTaipeiDateTime(date = new Date()) {
+  const parts = new Intl.DateTimeFormat("sv-SE", {
+    timeZone: "Asia/Taipei",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  }).formatToParts(date);
+
+  const get = (type) => parts.find((part) => part.type === type)?.value ?? "00";
+  return `${get("year")}-${get("month")}-${get("day")} ${get("hour")}:${get("minute")}:${get("second")} UTC+8`;
+}
+
+function normalizeDateTime(value) {
+  if (typeof value !== "string") {
+    return value;
+  }
+
+  if (value.includes("UTC+8")) {
+    return value;
+  }
+
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? value : formatTaipeiDateTime(parsed);
+}
+
 main().catch(async (error) => {
   console.warn(`[market-data] Update failed: ${error.message}`);
 
@@ -503,7 +533,7 @@ main().catch(async (error) => {
   console.warn("[market-data] No existing JSON files found; writing fallback N/A JSON.");
   await mkdir(outputDir, { recursive: true });
 
-  const fallbackUpdatedAt = new Date().toISOString();
+  const fallbackUpdatedAt = formatTaipeiDateTime();
   const fallbackMarket = {
     updatedAt: fallbackUpdatedAt,
     summaryItems: definitions.summaryItems.map((definition) => unavailableMarketItem(definition, fallbackUpdatedAt)),

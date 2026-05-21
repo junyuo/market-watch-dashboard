@@ -24,7 +24,7 @@ export type DashboardMarketData = {
   fxMacroItems: MarketItem[];
 };
 
-export const fallbackUpdatedAt = "2026-05-21 15:30";
+export const fallbackUpdatedAt = "2026-05-21 15:30:00 UTC+8";
 
 export const summaryItems: MarketItem[] = [
   {

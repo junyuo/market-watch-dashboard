@@ -173,6 +173,6 @@ export const dashboardCharts: DashboardChart[] = [
 ];
 
 export const fallbackChartData: DashboardChartData = {
-  updatedAt: "2026-05-21 15:30",
+  updatedAt: "2026-05-21 15:30:00 UTC+8",
   charts: dashboardCharts,
 };
