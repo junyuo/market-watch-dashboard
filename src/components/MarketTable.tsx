@@ -151,6 +151,8 @@ export function MarketTable({
   hideRelatedAsset = false,
   showTechnicalMetrics = false,
 }: MarketTableProps) {
+  const alignNumericColumns = showRiskSignals || showTechnicalMetrics;
+
   return (
     <div className="table-shell" role="region" aria-label="市場資料表格" tabIndex={0}>
       <table className="market-table">
@@ -179,24 +181,26 @@ export function MarketTable({
               <td className="market-table__name">{item.name}</td>
               <td>{item.symbol}</td>
               <td>{item.category}</td>
-              <td className={showRiskSignals ? "market-table__numeric" : undefined}>
+              <td className={alignNumericColumns ? "market-table__numeric" : undefined}>
                 {item.price}
               </td>
-              <td className={`${trendClass(item.change)}${showRiskSignals ? " market-table__numeric" : ""}`}>
+              <td className={`${trendClass(item.change)}${alignNumericColumns ? " market-table__numeric" : ""}`}>
                 {formatValue(item.change)}
               </td>
-              <td className={`${trendClass(item.changePercent)}${showRiskSignals ? " market-table__numeric" : ""}`}>
+              <td className={`${trendClass(item.changePercent)}${alignNumericColumns ? " market-table__numeric" : ""}`}>
                 {formatValue(item.changePercent, "%")}
               </td>
-              <td className={`${trendClass(item.period5d)}${showRiskSignals ? " market-table__numeric" : ""}`}>
+              <td className={`${trendClass(item.period5d)}${alignNumericColumns ? " market-table__numeric" : ""}`}>
                 {formatValue(item.period5d, "%")}
               </td>
-              <td className={`${trendClass(item.period1m)}${showRiskSignals ? " market-table__numeric" : ""}`}>
+              <td className={`${trendClass(item.period1m)}${alignNumericColumns ? " market-table__numeric" : ""}`}>
                 {formatValue(item.period1m, "%")}
               </td>
-              {showTechnicalMetrics ? <td>{formatValue(item.ma60 ?? "N/A")}</td> : null}
               {showTechnicalMetrics ? (
-                <td className={trendClass(item.bias ?? "N/A")}>
+                <td className="market-table__numeric">{formatValue(item.ma60 ?? "N/A")}</td>
+              ) : null}
+              {showTechnicalMetrics ? (
+                <td className={`${trendClass(item.bias ?? "N/A")} market-table__numeric`}>
                   {formatValue(item.bias ?? "N/A", "%")}
                 </td>
               ) : null}
