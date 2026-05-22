@@ -110,6 +110,7 @@ function App() {
         hideRelatedAsset
         hideNotes
         showTechnicalMetrics
+        showTechnicalRiskHint
         alignChangeColumns
       />
 
