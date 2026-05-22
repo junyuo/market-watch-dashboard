@@ -279,6 +279,18 @@
       "note": "以 QQQ 作為 Nasdaq 100 proxy"
     },
     {
+      "name": "Alphabet",
+      "symbol": "GOOGL",
+      "category": "搜尋與雲端",
+      "price": 388.91,
+      "change": 1.25,
+      "changePercent": 0.32,
+      "period5d": -3.41,
+      "period1m": 17.04,
+      "relatedAsset": "00646",
+      "updatedAt": "2026-05-21 16:41:56 UTC+8"
+    },
+    {
       "name": "NVIDIA",
       "symbol": "NVDA",
       "category": "AI 晶片",
@@ -335,18 +347,6 @@
       "changePercent": 0.41,
       "period5d": -1.88,
       "period1m": -9.54,
-      "relatedAsset": "00646",
-      "updatedAt": "2026-05-21 16:41:56 UTC+8"
-    },
-    {
-      "name": "Alphabet",
-      "symbol": "GOOGL",
-      "category": "搜尋與雲端",
-      "price": 388.91,
-      "change": 1.25,
-      "changePercent": 0.32,
-      "period5d": -3.41,
-      "period1m": 17.04,
       "relatedAsset": "00646",
       "updatedAt": "2026-05-21 16:41:56 UTC+8"
     },
