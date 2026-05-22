@@ -179,13 +179,21 @@ export function MarketTable({
               <td className="market-table__name">{item.name}</td>
               <td>{item.symbol}</td>
               <td>{item.category}</td>
-              <td>{item.price}</td>
-              <td className={trendClass(item.change)}>{formatValue(item.change)}</td>
-              <td className={trendClass(item.changePercent)}>
+              <td className={showRiskSignals ? "market-table__numeric" : undefined}>
+                {item.price}
+              </td>
+              <td className={`${trendClass(item.change)}${showRiskSignals ? " market-table__numeric" : ""}`}>
+                {formatValue(item.change)}
+              </td>
+              <td className={`${trendClass(item.changePercent)}${showRiskSignals ? " market-table__numeric" : ""}`}>
                 {formatValue(item.changePercent, "%")}
               </td>
-              <td className={trendClass(item.period5d)}>{formatValue(item.period5d, "%")}</td>
-              <td className={trendClass(item.period1m)}>{formatValue(item.period1m, "%")}</td>
+              <td className={`${trendClass(item.period5d)}${showRiskSignals ? " market-table__numeric" : ""}`}>
+                {formatValue(item.period5d, "%")}
+              </td>
+              <td className={`${trendClass(item.period1m)}${showRiskSignals ? " market-table__numeric" : ""}`}>
+                {formatValue(item.period1m, "%")}
+              </td>
               {showTechnicalMetrics ? <td>{formatValue(item.ma60 ?? "N/A")}</td> : null}
               {showTechnicalMetrics ? (
                 <td className={trendClass(item.bias ?? "N/A")}>

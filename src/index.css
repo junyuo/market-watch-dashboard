@@ -231,6 +231,11 @@ button {
   line-height: 1.5;
 }
 
+.market-table .market-table__numeric {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
 .market-table__risk-signal {
   min-width: 260px;
 }
