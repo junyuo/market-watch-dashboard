@@ -14,6 +14,7 @@ type MarketTableProps = {
   hideNotes?: boolean;
   hideRelatedAsset?: boolean;
   showTechnicalMetrics?: boolean;
+  showTechnicalRiskHint?: boolean;
   alignChangeColumns?: boolean;
 };
 
@@ -151,6 +152,7 @@ export function MarketTable({
   hideNotes = false,
   hideRelatedAsset = false,
   showTechnicalMetrics = false,
+  showTechnicalRiskHint = false,
   alignChangeColumns = false,
 }: MarketTableProps) {
   const alignNumericColumns = showRiskSignals || showTechnicalMetrics;
@@ -171,7 +173,7 @@ export function MarketTable({
             <th>近 1 月</th>
             {showTechnicalMetrics ? <th>MA60 (均線)</th> : null}
             {showTechnicalMetrics ? <th>乖離率 (Bias)</th> : null}
-            {showTechnicalMetrics ? <th>風險提示</th> : null}
+            {showTechnicalRiskHint ? <th>風險提示</th> : null}
             {showRiskSignals ? <th>市場風險狀態判斷</th> : null}
             {hideRelatedAsset ? null : <th>影響標的</th>}
             <th>更新時間</th>
@@ -207,7 +209,7 @@ export function MarketTable({
                   {formatValue(item.bias ?? "N/A", "%")}
                 </td>
               ) : null}
-              {showTechnicalMetrics ? (
+              {showTechnicalRiskHint ? (
                 <td>
                   <TechnicalRiskHint item={item} />
                 </td>

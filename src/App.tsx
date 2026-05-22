@@ -100,6 +100,7 @@ function App() {
         hideRelatedAsset
         hideNotes
         showTechnicalMetrics
+        showTechnicalRiskHint
       />
 
       <MarketSection
@@ -108,6 +109,7 @@ function App() {
         items={marketData.us00646Items}
         hideRelatedAsset
         hideNotes
+        showTechnicalMetrics
         alignChangeColumns
       />
 

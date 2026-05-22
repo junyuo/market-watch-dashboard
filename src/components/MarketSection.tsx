@@ -9,6 +9,7 @@ type MarketSectionProps = {
   hideNotes?: boolean;
   hideRelatedAsset?: boolean;
   showTechnicalMetrics?: boolean;
+  showTechnicalRiskHint?: boolean;
   alignChangeColumns?: boolean;
 };
 
@@ -20,6 +21,7 @@ export function MarketSection({
   hideNotes = false,
   hideRelatedAsset = false,
   showTechnicalMetrics = false,
+  showTechnicalRiskHint = false,
   alignChangeColumns = false,
 }: MarketSectionProps) {
   return (
@@ -34,6 +36,7 @@ export function MarketSection({
         hideNotes={hideNotes}
         hideRelatedAsset={hideRelatedAsset}
         showTechnicalMetrics={showTechnicalMetrics}
+        showTechnicalRiskHint={showTechnicalRiskHint}
         alignChangeColumns={alignChangeColumns}
       />
     </section>
