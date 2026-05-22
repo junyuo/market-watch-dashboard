@@ -301,6 +301,51 @@ button {
   color: var(--neutral);
 }
 
+.technical-risk {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-soft);
+  color: var(--text-strong);
+  padding: 4px 9px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.technical-risk--warning {
+  border-color: #fde68a;
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.technical-risk--rising {
+  border-color: #fecaca;
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.technical-risk--falling {
+  border-color: #bfdbfe;
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.technical-risk--stress {
+  border-color: #cbd5e1;
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.technical-risk--flat,
+.technical-risk--unavailable {
+  border-color: #e2e8f0;
+  background: #f8fafc;
+  color: var(--neutral);
+}
+
 .trend-up {
   color: var(--up);
 }

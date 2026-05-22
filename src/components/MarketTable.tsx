@@ -59,6 +59,34 @@ const estimatePointChange = (currentValue: number | null, periodChangePercent: n
   return currentValue - baseValue;
 };
 
+const technicalRiskHint = (item: MarketItem) => {
+  const price = toNumber(item.price);
+  const ma60 = toNumber(item.ma60 ?? "N/A");
+  const bias = toNumber(item.bias ?? "N/A");
+
+  if (price === null || ma60 === null || bias === null) {
+    return { label: "資料暫缺", level: "unavailable" };
+  }
+
+  if (price > ma60 && bias >= 15) {
+    return { label: "短期漲幅偏熱", level: "warning" };
+  }
+
+  if (price > ma60) {
+    return { label: "趨勢偏強", level: "rising" };
+  }
+
+  if (price < ma60 && bias <= -15) {
+    return { label: "修正壓力", level: "stress" };
+  }
+
+  if (price < ma60) {
+    return { label: "趨勢偏弱", level: "falling" };
+  }
+
+  return { label: "接近均線", level: "flat" };
+};
+
 const riskSignalForItem = (item: MarketItem): RiskSignal => {
   const value = toNumber(item.price);
   const period5dChangePercent = toNumber(item.period5d);
@@ -106,6 +134,16 @@ const RiskSignalCell = ({ item }: { item: MarketItem }) => {
   );
 };
 
+const TechnicalRiskHint = ({ item }: { item: MarketItem }) => {
+  const hint = technicalRiskHint(item);
+
+  return (
+    <span className={`technical-risk technical-risk--${hint.level}`}>
+      {hint.label}
+    </span>
+  );
+};
+
 export function MarketTable({
   items,
   showRiskSignals = false,
@@ -128,6 +166,7 @@ export function MarketTable({
             <th>近 1 月</th>
             {showTechnicalMetrics ? <th>MA60 (均線)</th> : null}
             {showTechnicalMetrics ? <th>乖離率 (Bias)</th> : null}
+            {showTechnicalMetrics ? <th>風險提示</th> : null}
             {showRiskSignals ? <th>市場風險狀態判斷</th> : null}
             {hideRelatedAsset ? null : <th>影響標的</th>}
             <th>更新時間</th>
@@ -151,6 +190,11 @@ export function MarketTable({
               {showTechnicalMetrics ? (
                 <td className={trendClass(item.bias ?? "N/A")}>
                   {formatValue(item.bias ?? "N/A", "%")}
+                </td>
+              ) : null}
+              {showTechnicalMetrics ? (
+                <td>
+                  <TechnicalRiskHint item={item} />
                 </td>
               ) : null}
               {showRiskSignals ? (
