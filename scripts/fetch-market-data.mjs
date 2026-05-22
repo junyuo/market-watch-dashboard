@@ -237,12 +237,15 @@ function buildChartData(yahooResults, jpyTwdSeries, previousChartData) {
       },
       {
         id: "cht2412",
-        title: "2412 中華電信股價",
-        description: "使用實際股價數值，觀察中華電信股價趨勢",
-        normalized: false,
+        title: "電信防禦性比較",
+        description: "比較 2412、3045、4904 與加權指數的相對走勢",
+        normalized: true,
         series: [
-          buildSeriesWithPrevious(seriesDef("中華電信股價", symbols.cht, "2412", "2412.TW"), yahooResults[symbols.cht], previousChartData, "cht2412"),
-        ],
+          seriesDef("中華電信", symbols.cht, "2412", "2412.TW"),
+          seriesDef("台灣大", symbols.taiwanMobile, "2412", "3045.TW"),
+          seriesDef("遠傳", symbols.fet, "2412", "4904.TW"),
+          seriesDef("加權指數", symbols.taiex, "0050", "TAIEX"),
+        ].map((definition) => buildSeriesWithPrevious(definition, yahooResults[definition.symbol], previousChartData, "cht2412", { normalized: false })),
       },
       {
         id: "risk",
@@ -252,7 +255,10 @@ function buildChartData(yahooResults, jpyTwdSeries, previousChartData) {
         series: [
           seriesDef("市場波動率指數", symbols.vix, "Risk", "VIX"),
           seriesDef("10年期美債殖利率", symbols.tnx, "Risk", "TNX"),
+          seriesDef("美元指數", symbols.dxy, "Macro", "DXY"),
           seriesDef("黃金 ETF", symbols.gld, "Risk"),
+          seriesDef("美國原油 ETF", symbols.uso, "Risk"),
+          seriesDef("抗通膨債券 ETF", symbols.tip, "Risk"),
         ].map((definition) => buildSeriesWithPrevious(definition, yahooResults[definition.symbol], previousChartData, "risk", { normalized: true })),
       },
     ],

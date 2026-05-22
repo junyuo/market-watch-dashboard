@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { LineChartCard } from "./components/LineChartCard";
+import { MarketInsightsSection } from "./components/MarketInsightsSection";
 import { MarketSection } from "./components/MarketSection";
 import { SummaryCard } from "./components/SummaryCard";
 import { fallbackChartData, type DashboardChartData } from "./data/chartData";
@@ -120,17 +120,7 @@ function App() {
         items={marketData.fxMacroItems}
       />
 
-      <section className="dashboard-section">
-        <div className="section-heading">
-          <h2>線圖區</h2>
-          <p>使用每日 JSON 或備援資料比較主要標的、匯率與風險指標的相對變化。</p>
-        </div>
-        <div className="chart-grid">
-          {chartData.charts.map((chart) => (
-            <LineChartCard key={chart.id} chart={chart} />
-          ))}
-        </div>
-      </section>
+      <MarketInsightsSection marketData={marketData} chartData={chartData} />
 
       <section className="update-panel" aria-label="資料更新時間">
         <div>
