@@ -9,6 +9,7 @@ type MarketSectionProps = {
   hideNotes?: boolean;
   hideRelatedAsset?: boolean;
   showTechnicalMetrics?: boolean;
+  alignChangeColumns?: boolean;
 };
 
 export function MarketSection({
@@ -19,6 +20,7 @@ export function MarketSection({
   hideNotes = false,
   hideRelatedAsset = false,
   showTechnicalMetrics = false,
+  alignChangeColumns = false,
 }: MarketSectionProps) {
   return (
     <section className="dashboard-section">
@@ -32,6 +34,7 @@ export function MarketSection({
         hideNotes={hideNotes}
         hideRelatedAsset={hideRelatedAsset}
         showTechnicalMetrics={showTechnicalMetrics}
+        alignChangeColumns={alignChangeColumns}
       />
     </section>
   );

@@ -106,6 +106,9 @@ function App() {
         title="00646 觀察區"
         description="觀察 00646 與美股大型科技股、S&P 500、Nasdaq 100 的連動。"
         items={marketData.us00646Items}
+        hideRelatedAsset
+        hideNotes
+        alignChangeColumns
       />
 
       <MarketSection

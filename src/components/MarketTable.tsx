@@ -14,6 +14,7 @@ type MarketTableProps = {
   hideNotes?: boolean;
   hideRelatedAsset?: boolean;
   showTechnicalMetrics?: boolean;
+  alignChangeColumns?: boolean;
 };
 
 const trendClass = (value: MarketItem["change"] | MarketItem["changePercent"]) => {
@@ -150,8 +151,10 @@ export function MarketTable({
   hideNotes = false,
   hideRelatedAsset = false,
   showTechnicalMetrics = false,
+  alignChangeColumns = false,
 }: MarketTableProps) {
   const alignNumericColumns = showRiskSignals || showTechnicalMetrics;
+  const alignChangeMetrics = alignNumericColumns || alignChangeColumns;
 
   return (
     <div className="table-shell" role="region" aria-label="市場資料表格" tabIndex={0}>
@@ -184,16 +187,16 @@ export function MarketTable({
               <td className={alignNumericColumns ? "market-table__numeric" : undefined}>
                 {item.price}
               </td>
-              <td className={`${trendClass(item.change)}${alignNumericColumns ? " market-table__numeric" : ""}`}>
+              <td className={`${trendClass(item.change)}${alignChangeMetrics ? " market-table__numeric" : ""}`}>
                 {formatValue(item.change)}
               </td>
-              <td className={`${trendClass(item.changePercent)}${alignNumericColumns ? " market-table__numeric" : ""}`}>
+              <td className={`${trendClass(item.changePercent)}${alignChangeMetrics ? " market-table__numeric" : ""}`}>
                 {formatValue(item.changePercent, "%")}
               </td>
-              <td className={`${trendClass(item.period5d)}${alignNumericColumns ? " market-table__numeric" : ""}`}>
+              <td className={`${trendClass(item.period5d)}${alignChangeMetrics ? " market-table__numeric" : ""}`}>
                 {formatValue(item.period5d, "%")}
               </td>
-              <td className={`${trendClass(item.period1m)}${alignNumericColumns ? " market-table__numeric" : ""}`}>
+              <td className={`${trendClass(item.period1m)}${alignChangeMetrics ? " market-table__numeric" : ""}`}>
                 {formatValue(item.period1m, "%")}
               </td>
               {showTechnicalMetrics ? (
