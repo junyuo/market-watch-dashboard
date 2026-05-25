@@ -1,4 +1,5 @@
 import type { MarketItem } from "../data/marketData";
+import type { ReactNode } from "react";
 import { MarketTable } from "./MarketTable";
 
 type MarketSectionProps = {
@@ -11,6 +12,7 @@ type MarketSectionProps = {
   showTechnicalMetrics?: boolean;
   showTechnicalRiskHint?: boolean;
   alignChangeColumns?: boolean;
+  children?: ReactNode;
 };
 
 export function MarketSection({
@@ -23,6 +25,7 @@ export function MarketSection({
   showTechnicalMetrics = false,
   showTechnicalRiskHint = false,
   alignChangeColumns = false,
+  children,
 }: MarketSectionProps) {
   return (
     <section className="dashboard-section">
@@ -30,6 +33,7 @@ export function MarketSection({
         <h2>{title}</h2>
         <p>{description}</p>
       </div>
+      {children}
       <MarketTable
         items={items}
         showRiskSignals={showRiskSignals}

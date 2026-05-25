@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { MarketInsightsSection } from "./components/MarketInsightsSection";
 import { MarketSection } from "./components/MarketSection";
+import { RiskWeatherPanel } from "./components/RiskWeatherPanel";
 import { SummaryCard } from "./components/SummaryCard";
 import { fallbackChartData, type DashboardChartData } from "./data/chartData";
 import { fallbackMarketData, type DashboardMarketData } from "./data/marketData";
@@ -91,7 +92,9 @@ function App() {
         showRiskSignals
         hideNotes
         hideRelatedAsset
-      />
+      >
+        <RiskWeatherPanel marketData={marketData} chartData={chartData} />
+      </MarketSection>
 
       <MarketSection
         title="0050 觀察區"
@@ -120,7 +123,7 @@ function App() {
         items={marketData.fxMacroItems}
       />
 
-      <MarketInsightsSection marketData={marketData} chartData={chartData} />
+      <MarketInsightsSection chartData={chartData} />
 
       <section className="update-panel" aria-label="資料更新時間">
         <div>

@@ -493,6 +493,16 @@ button {
   align-items: stretch;
 }
 
+.risk-weather-panel {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-soft);
+  margin-bottom: 16px;
+  padding: 18px;
+}
+
 .risk-score {
   display: grid;
   place-items: center;

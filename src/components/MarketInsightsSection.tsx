@@ -13,47 +13,38 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type { DashboardChartData, TimeRange, TimeSeriesPoint } from "../data/chartData";
-import type { DashboardMarketData, MarketItem } from "../data/marketData";
+import type { DashboardChartData, TimeRange } from "../data/chartData";
 import {
   alignByDate,
-  filterByRange,
   formatPercent,
-  formatScore,
   getAnySeries,
   getSeries,
-  marketItem,
   normalizeSeries,
-  numericValue,
   periodReturn,
   periodSpread,
   round,
   timeRanges,
-  weatherForScore,
   type InsightCardData,
   type InsightMetric,
 } from "../utils/marketInsights";
 
 type MarketInsightsSectionProps = {
-  marketData: DashboardMarketData;
   chartData: DashboardChartData;
 };
 
 const chartColors = ["#2563eb", "#dc2626", "#16a34a", "#9333ea", "#f59e0b"];
 
-export function MarketInsightsSection({ marketData, chartData }: MarketInsightsSectionProps) {
+export function MarketInsightsSection({ chartData }: MarketInsightsSectionProps) {
   const [selectedRange, setSelectedRange] = useState<TimeRange>("1M");
 
   const tw0050 = useMemo(() => buildTw0050Insight(chartData, selectedRange), [chartData, selectedRange]);
   const us00646 = useMemo(() => buildUs00646Breakdown(chartData, selectedRange), [chartData, selectedRange]);
   const telecom = useMemo(() => buildTelecomComparison(chartData, selectedRange), [chartData, selectedRange]);
-  const risk = useMemo(() => buildRiskWeather(marketData, chartData, selectedRange), [marketData, chartData, selectedRange]);
   const fx = useMemo(() => buildFxMiniCards(chartData, selectedRange), [chartData, selectedRange]);
 
   const insightCards: InsightCardData[] = [
     tw0050.card,
     us00646.card,
-    risk.card,
   ];
 
   return (
@@ -172,27 +163,6 @@ export function MarketInsightsSection({ marketData, chartData }: MarketInsightsS
           )}
         </article>
 
-        <article className="chart-card insight-panel insight-panel--wide">
-          <PanelHeader
-            title="市場風險天氣"
-            description="以 VIX、TNX、DXY、GLD、USO、TIP 的公開市場變化估算 Risk Score。"
-            updatedAt={marketData.updatedAt}
-          />
-          <div className="risk-weather">
-            <div className={`risk-score risk-score--${risk.weather.level}`}>
-              <span>Risk Score</span>
-              <strong>{formatScore(risk.score)}</strong>
-              <em>{risk.weather.label}</em>
-            </div>
-            <div className="sparkline-grid">
-              {risk.indicators.map((indicator) => (
-                <SparklineCard key={indicator.symbol} indicator={indicator} />
-              ))}
-            </div>
-          </div>
-          <InsightSummary text={risk.summary} metrics={risk.metrics} />
-        </article>
-
         <article className="chart-card insight-panel">
           <PanelHeader
             title="美元壓力與匯率小卡"
@@ -260,23 +230,6 @@ function InsightSummary({ text, metrics }: { text: string; metrics: InsightMetri
 
 function EmptyInsight() {
   return <div className="empty-chart">資料不足，不產生判讀</div>;
-}
-
-function SparklineCard({ indicator }: { indicator: RiskIndicator }) {
-  return (
-    <div className="sparkline-card">
-      <div>
-        <span>{indicator.symbol}</span>
-        <strong>{indicator.score} 分</strong>
-      </div>
-      <ResponsiveContainer width="100%" height={48}>
-        <LineChart data={indicator.sparkline}>
-          <Line type="monotone" dataKey="value" stroke="#2563eb" strokeWidth={2} dot={false} />
-        </LineChart>
-      </ResponsiveContainer>
-      <small>{indicator.note}</small>
-    </div>
-  );
 }
 
 function buildTw0050Insight(chartData: DashboardChartData, range: TimeRange) {
@@ -397,81 +350,6 @@ function buildTelecomComparison(chartData: DashboardChartData, range: TimeRange)
       { label: "大盤波動", value: market ? `${market.volatility}%` : "資料不足" },
     ],
   };
-}
-
-type RiskIndicator = {
-  symbol: string;
-  score: number;
-  note: string;
-  sparkline: TimeSeriesPoint[];
-};
-
-function buildRiskWeather(marketData: DashboardMarketData, chartData: DashboardChartData, range: TimeRange) {
-  const riskDefinitions = [
-    { symbol: "VIX", weight: 0.25, score: scoreVix },
-    { symbol: "TNX", weight: 0.2, score: scoreChange },
-    { symbol: "DXY", weight: 0.15, score: scoreChange },
-    { symbol: "GLD", weight: 0.15, score: scoreChange },
-    { symbol: "USO", weight: 0.15, score: scoreChange },
-    { symbol: "TIP", weight: 0.1, score: scoreTip },
-  ];
-
-  const indicators: RiskIndicator[] = riskDefinitions.map((definition) => {
-    const item = marketItem(marketData, definition.symbol);
-    const value = numericValue(item?.price ?? "N/A");
-    const period1m = numericValue(item?.period1m ?? "N/A");
-    const score = definition.score(value, period1m);
-    return {
-      symbol: definition.symbol,
-      score,
-      note: item ? `${item.category}：${item.period1m}%` : "資料不足",
-      sparkline: filterByRange(getAnySeries(chartData, definition.symbol), range),
-    };
-  });
-
-  const score = indicators.length
-    ? indicators.reduce((sum, indicator, index) => sum + indicator.score * riskDefinitions[index].weight, 0)
-    : null;
-  const weather = weatherForScore(score);
-
-  return {
-    score,
-    weather,
-    indicators,
-    summary: score === null ? "資料不足，不產生判讀" : `市場風險天氣為「${weather.label}」，Risk Score 約 ${Math.round(score)}。`,
-    metrics: [
-      { label: "Risk Score", value: formatScore(score) },
-      { label: "市場天氣", value: weather.label },
-    ],
-    card: {
-      title: "市場風險天氣",
-      status: weather.label,
-      description: score === null ? "資料不足，不產生判讀。" : `綜合風險分數約 ${Math.round(score)} / 100。`,
-      level: weather.level,
-      metrics: [{ label: "Risk Score", value: formatScore(score) }],
-    } satisfies InsightCardData,
-  };
-}
-
-function scoreVix(value: number | null) {
-  if (value === null) return 50;
-  if (value >= 25) return 90;
-  if (value >= 15) return 55;
-  return 20;
-}
-
-function scoreChange(_value: number | null, period1m: number | null) {
-  if (period1m === null) return 50;
-  if (period1m >= 5) return 75;
-  if (period1m <= -5) return 35;
-  return 50;
-}
-
-function scoreTip(_value: number | null, period1m: number | null) {
-  if (period1m === null) return 50;
-  if (period1m >= 1) return 65;
-  if (period1m <= -1) return 45;
-  return 50;
 }
 
 function buildFxMiniCards(chartData: DashboardChartData, range: TimeRange) {
