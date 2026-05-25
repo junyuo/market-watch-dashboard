@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "30 0 * * 1-5"
+    - cron: "30 9 * * 1-5" # Taiwan time 17:30
 
 permissions:
   contents: read
