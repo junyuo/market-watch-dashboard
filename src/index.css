@@ -240,6 +240,41 @@ button {
   min-width: 260px;
 }
 
+.foreign-flow-panel {
+  display: grid;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-soft);
+  margin-bottom: 16px;
+  padding: 18px;
+}
+
+.foreign-flow-panel__header {
+  display: grid;
+  gap: 6px;
+}
+
+.foreign-flow-panel h3 {
+  margin: 0;
+  color: var(--text-strong);
+  font-size: 1.05rem;
+}
+
+.foreign-flow-panel p {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.foreign-flow-table {
+  min-width: 980px;
+}
+
+.foreign-flow-empty {
+  min-height: 120px;
+}
+
 .risk-signal {
   display: grid;
   gap: 6px;

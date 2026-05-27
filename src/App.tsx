@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { MarketInsightsSection } from "./components/MarketInsightsSection";
 import { MarketSection } from "./components/MarketSection";
+import { ForeignFlowTable } from "./components/ForeignFlowTable";
 import { RiskWeatherPanel } from "./components/RiskWeatherPanel";
 import { SummaryCard } from "./components/SummaryCard";
 import { fallbackChartData, type DashboardChartData } from "./data/chartData";
@@ -12,6 +13,8 @@ function App() {
   const [marketData, setMarketData] = useState<DashboardMarketData>(fallbackMarketData);
   const [chartData, setChartData] = useState<DashboardChartData>(fallbackChartData);
   const [dataSourceStatus, setDataSourceStatus] = useState<DataSourceStatus>("loading");
+  const foreignFlowItem = marketData.fxMacroItems.find((item) => item.symbol === "Foreign Flow");
+  const fxMacroPriceItems = marketData.fxMacroItems.filter((item) => item.symbol !== "Foreign Flow");
 
   useEffect(() => {
     let cancelled = false;
@@ -119,9 +122,11 @@ function App() {
 
       <MarketSection
         title="匯率與總經觀察區"
-        description="觀察美元、日圓、美元指數與台股外資資金面；TNX 已放在市場風險溫度計。"
-        items={marketData.fxMacroItems}
-      />
+        description="觀察美元、日圓與美元指數；TNX 已放在市場風險溫度計。"
+        items={fxMacroPriceItems}
+      >
+        <ForeignFlowTable item={foreignFlowItem} />
+      </MarketSection>
 
       <MarketInsightsSection chartData={chartData} />
 
