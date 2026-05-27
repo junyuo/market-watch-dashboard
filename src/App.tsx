@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { MarketInsightsSection } from "./components/MarketInsightsSection";
 import { MarketSection } from "./components/MarketSection";
 import { ForeignFlowTable } from "./components/ForeignFlowTable";
 import { RiskWeatherPanel } from "./components/RiskWeatherPanel";
@@ -127,8 +126,6 @@ function App() {
       >
         <ForeignFlowTable item={foreignFlowItem} />
       </MarketSection>
-
-      <MarketInsightsSection chartData={chartData} />
 
       <section className="update-panel" aria-label="資料更新時間">
         <div>
