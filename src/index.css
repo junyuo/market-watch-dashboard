@@ -100,6 +100,26 @@ button {
   color: var(--text-strong);
 }
 
+.manual-update-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: var(--accent);
+  color: #ffffff;
+  padding: 9px 12px;
+  text-align: center;
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 800;
+}
+
+.manual-update-link:hover {
+  background: #1e40af;
+  border-color: #1e40af;
+}
+
 .dashboard-section,
 .update-panel {
   margin-top: 24px;

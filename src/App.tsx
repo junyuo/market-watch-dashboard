@@ -66,6 +66,14 @@ function App() {
         <div className="hero__status">
           <span>{dataSourceStatus === "json" ? "每日 JSON" : "備援資料"}</span>
           <strong>{marketData.updatedAt}</strong>
+          <a
+            className="manual-update-link"
+            href="https://github.com/junyuo/market-watch-dashboard/actions/workflows/update-market-data.yml"
+            target="_blank"
+            rel="noreferrer"
+          >
+            手動更新資料
+          </a>
         </div>
       </section>
 
