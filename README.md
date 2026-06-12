@@ -84,6 +84,7 @@ src/data/marketData.ts
 - `riskIndicators`
 - `tw0050Items`
 - `us00646Items`
+- `aiSupplyChainItems`
 - `cht2412Items`
 - `fxMacroItems`
 
@@ -146,12 +147,13 @@ node scripts/fetch-market-data.mjs
 支援：
 
 - `workflow_dispatch` 手動執行
-- 週一到週五台灣時間 08:30 自動執行
+- 週一到週五台灣時間 08:30 與 17:30 自動執行
 
 GitHub Actions cron 使用 UTC，因此排程為：
 
 ```text
-30 0 * * 1-5
+30 0 * * 1-5  # 台灣時間 08:30
+30 9 * * 1-5  # 台灣時間 17:30
 ```
 
 workflow 會依序執行：
@@ -183,6 +185,10 @@ workflow 會依序執行：
 | S&P 500 proxy | `SPY` |
 | Nasdaq 100 proxy | `QQQ` |
 | 美股大型科技股 | `NVDA`, `MSFT`, `AAPL`, `AMZN`, `META`, `GOOGL`, `AVGO`, `TSLA` |
+| AI 供應鏈 HBM | `MU`, `005930.KS`, `000660.KS` |
+| AI 供應鏈 CoWoS / 先進封裝 | `2330.TW`, `TSM`, `3711.TW`, `AMKR` |
+| AI Server | `2317.TW`, `2382.TW`, `3231.TW`, `6669.TW`, `SMCI`, `DELL` |
+| Power Electronics | `2308.TW`, `MPWR`, `ON` |
 | 風險與避險 ETF | `GLD`, `USO`, `TIP` |
 | VIX | `^VIX` |
 | TNX | `^TNX` |
@@ -194,11 +200,14 @@ workflow 會依序執行：
 
 外資買賣超使用 TWSE `BFI82U` 三大法人買賣金額統計表，取「外資及陸資(不含外資自營商)」的買賣差額並以億元顯示。FRED 模組已保留在 `scripts/lib/`，後續可逐步把 VIX 等來源改成更正式的公開資料。
 
+AI 供應鏈觀察區用來觀察 HBM、CoWoS、AI Server 與 Power Electronics 的公開市場代表標的，不是交易訊號或投資建議。韓股使用 Yahoo Finance symbols：Samsung Electronics `005930.KS`、SK Hynix `000660.KS`。
+
 ## 資料抓取限制
 
 - Yahoo Finance 為免費公開資料來源，可能有延遲、缺漏、symbol 變動或暫時不可用。
 - 目前不追求即時報價，只適合每日觀察。
 - `SPY` 作為 S&P 500 proxy，`QQQ` 作為 Nasdaq 100 proxy。
+- AI 供應鏈跨台股、美股與韓股；若部分市場 symbol 暫時抓不到，會優先沿用前一次 JSON，沒有前值才顯示 `N/A`。
 - 2412 EPS、現金股利、月營收尚未串接正式資料來源；資料更新時會優先沿用前一次 JSON，沒有前值才顯示 `N/A`。
 - 2412 殖利率只有在現金股利與股價都可用時才計算；否則沿用前一次 JSON 或顯示 `N/A`。
 - 外資買賣超來自 TWSE 三大法人買賣金額統計表；若 TWSE 暫時不可用，會優先沿用前一次 JSON，沒有前值才顯示 `N/A`。

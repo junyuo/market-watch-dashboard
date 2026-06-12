@@ -12,6 +12,7 @@ function App() {
   const [marketData, setMarketData] = useState<DashboardMarketData>(fallbackMarketData);
   const [chartData, setChartData] = useState<DashboardChartData>(fallbackChartData);
   const [dataSourceStatus, setDataSourceStatus] = useState<DataSourceStatus>("loading");
+  const aiSupplyChainItems = marketData.aiSupplyChainItems ?? fallbackMarketData.aiSupplyChainItems ?? [];
   const foreignFlowItem = marketData.fxMacroItems.find((item) => item.symbol === "Foreign Flow");
   const fxMacroPriceItems = marketData.fxMacroItems.filter((item) => item.symbol !== "Foreign Flow");
 
@@ -120,6 +121,17 @@ function App() {
         title="00646 觀察區"
         description="觀察 00646 與美股大型科技股、S&P 500、Nasdaq 100 的連動。"
         items={marketData.us00646Items}
+        hideRelatedAsset
+        hideNotes
+        showTechnicalMetrics
+        showTechnicalRiskHint
+        alignChangeColumns
+      />
+
+      <MarketSection
+        title="AI 供應鏈觀察區"
+        description="觀察 HBM、CoWoS、AI Server 與 Power Electronics 代表標的的公開市場表現。"
+        items={aiSupplyChainItems}
         hideRelatedAsset
         hideNotes
         showTechnicalMetrics

@@ -132,6 +132,7 @@ export const marketItem = (marketData: DashboardMarketData, symbol: string): Mar
     ...marketData.riskIndicators,
     ...marketData.tw0050Items,
     ...marketData.us00646Items,
+    ...(marketData.aiSupplyChainItems ?? []),
     ...marketData.cht2412Items,
     ...marketData.fxMacroItems,
   ].find((item) => item.symbol === symbol);
