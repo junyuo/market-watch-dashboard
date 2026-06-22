@@ -137,6 +137,7 @@ function App() {
         showTechnicalMetrics
         showTechnicalRiskHint
         alignChangeColumns
+        formatPriceWithThousandsSeparator
       />
 
       <MarketSection

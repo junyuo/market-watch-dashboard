@@ -16,6 +16,7 @@ type MarketTableProps = {
   showTechnicalMetrics?: boolean;
   showTechnicalRiskHint?: boolean;
   alignChangeColumns?: boolean;
+  formatPriceWithThousandsSeparator?: boolean;
 };
 
 const trendClass = (value: MarketItem["change"] | MarketItem["changePercent"]) => {
@@ -41,6 +42,16 @@ const formatValue = (value: number | string, suffix = "") => {
   }
 
   return `${value > 0 && suffix ? "+" : ""}${value}${suffix}`;
+};
+
+const formatThousands = (value: number | string) => {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return value;
+  }
+
+  return new Intl.NumberFormat("zh-TW", {
+    maximumFractionDigits: 6,
+  }).format(value);
 };
 
 const toNumber = (value: number | string) => {
@@ -154,6 +165,7 @@ export function MarketTable({
   showTechnicalMetrics = false,
   showTechnicalRiskHint = false,
   alignChangeColumns = false,
+  formatPriceWithThousandsSeparator = false,
 }: MarketTableProps) {
   const alignNumericColumns = showRiskSignals || showTechnicalMetrics;
   const alignChangeMetrics = alignNumericColumns || alignChangeColumns;
@@ -187,7 +199,7 @@ export function MarketTable({
               <td>{item.symbol}</td>
               <td>{item.category}</td>
               <td className={alignNumericColumns ? "market-table__numeric" : undefined}>
-                {item.price}
+                {formatPriceWithThousandsSeparator ? formatThousands(item.price) : item.price}
               </td>
               <td className={`${trendClass(item.change)}${alignChangeMetrics ? " market-table__numeric" : ""}`}>
                 {formatValue(item.change)}
@@ -202,7 +214,11 @@ export function MarketTable({
                 {formatValue(item.period1m, "%")}
               </td>
               {showTechnicalMetrics ? (
-                <td className="market-table__numeric">{formatValue(item.ma60 ?? "N/A")}</td>
+                <td className="market-table__numeric">
+                  {formatPriceWithThousandsSeparator
+                    ? formatThousands(item.ma60 ?? "N/A")
+                    : formatValue(item.ma60 ?? "N/A")}
+                </td>
               ) : null}
               {showTechnicalMetrics ? (
                 <td className={`${trendClass(item.bias ?? "N/A")} market-table__numeric`}>

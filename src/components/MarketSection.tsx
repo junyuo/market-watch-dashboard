@@ -12,6 +12,7 @@ type MarketSectionProps = {
   showTechnicalMetrics?: boolean;
   showTechnicalRiskHint?: boolean;
   alignChangeColumns?: boolean;
+  formatPriceWithThousandsSeparator?: boolean;
   children?: ReactNode;
 };
 
@@ -25,6 +26,7 @@ export function MarketSection({
   showTechnicalMetrics = false,
   showTechnicalRiskHint = false,
   alignChangeColumns = false,
+  formatPriceWithThousandsSeparator = false,
   children,
 }: MarketSectionProps) {
   return (
@@ -42,6 +44,7 @@ export function MarketSection({
         showTechnicalMetrics={showTechnicalMetrics}
         showTechnicalRiskHint={showTechnicalRiskHint}
         alignChangeColumns={alignChangeColumns}
+        formatPriceWithThousandsSeparator={formatPriceWithThousandsSeparator}
       />
     </section>
   );
