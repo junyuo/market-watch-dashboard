@@ -21,6 +21,22 @@ const trendClass = (value: number | string | undefined) => {
   return "trend-neutral";
 };
 
+const formatFlowAmount = (value: number | string) => {
+  if (typeof value === "number") {
+    return new Intl.NumberFormat("zh-TW", { maximumFractionDigits: 6 }).format(value);
+  }
+
+  return value.replace(/[+-]?\d+(?:\.\d+)?/, (matchedValue) => {
+    const numericValue = Number(matchedValue);
+    if (!Number.isFinite(numericValue)) {
+      return matchedValue;
+    }
+
+    const prefix = matchedValue.startsWith("+") ? "+" : "";
+    return `${prefix}${new Intl.NumberFormat("zh-TW", { maximumFractionDigits: 6 }).format(numericValue)}`;
+  });
+};
+
 export function ForeignFlowTable({ item }: ForeignFlowTableProps) {
   if (!item) {
     return (
@@ -56,10 +72,10 @@ export function ForeignFlowTable({ item }: ForeignFlowTableProps) {
           <tbody>
             <tr>
               <td className="market-table__name">{item.name}</td>
-              <td className={`${trendClass(item.price)} market-table__numeric`}>{item.price}</td>
-              <td className={`${trendClass(item.change)} market-table__numeric`}>{item.change}</td>
-              <td className={`${trendClass(item.period5d)} market-table__numeric`}>{item.period5d}</td>
-              <td className={`${trendClass(item.period1m)} market-table__numeric`}>{item.period1m}</td>
+              <td className={`${trendClass(item.price)} market-table__numeric`}>{formatFlowAmount(item.price)}</td>
+              <td className={`${trendClass(item.change)} market-table__numeric`}>{formatFlowAmount(item.change)}</td>
+              <td className={`${trendClass(item.period5d)} market-table__numeric`}>{formatFlowAmount(item.period5d)}</td>
+              <td className={`${trendClass(item.period1m)} market-table__numeric`}>{formatFlowAmount(item.period1m)}</td>
               <td>{item.updatedAt}</td>
               <td className="market-table__note">{item.note ?? "—"}</td>
             </tr>
