@@ -16,9 +16,13 @@ import {
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const projectRoot = path.resolve(__dirname, "..");
-const outputDir = path.join(projectRoot, "public", "data");
+const outputDir = resolveProjectPath(process.env.MARKET_DATA_OUTPUT_DIR, path.join("public", "data"));
+const previousDir = resolveProjectPath(process.env.MARKET_DATA_PREVIOUS_DIR, outputDir);
 const marketJsonPath = path.join(outputDir, "market.json");
 const chartDataJsonPath = path.join(outputDir, "chartData.json");
+const previousMarketJsonPath = path.join(previousDir, "market.json");
+const previousChartDataJsonPath = path.join(previousDir, "chartData.json");
+const strictMode = process.env.MARKET_DATA_STRICT === "1";
 
 const updatedAt = formatTaipeiDateTime();
 const foreignFlowSymbol = "Foreign Flow";
@@ -145,8 +149,8 @@ const definitions = {
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
-  const previousMarketData = await readJsonIfExists(marketJsonPath);
-  const previousChartData = await readJsonIfExists(chartDataJsonPath);
+  const previousMarketData = await readJsonIfExists(previousMarketJsonPath);
+  const previousChartData = await readJsonIfExists(previousChartDataJsonPath);
 
   const yahooSymbols = Object.values(symbols);
   const yahooResults = await fetchYahooCharts(yahooSymbols, { range: "1y", interval: "1d" });
@@ -156,7 +160,11 @@ async function main() {
   });
   const successCount = Object.values(yahooResults).filter((result) => result.ok).length;
 
-  if (successCount === 0 && existingJsonFilesPresent()) {
+  if (successCount === 0 && strictMode) {
+    throw new Error("All remote market data sources failed");
+  }
+
+  if (successCount === 0 && previousJsonFilesPresent()) {
     console.warn("[market-data] All remote fetches failed. Keeping existing public/data/*.json files.");
     return;
   }
@@ -532,8 +540,13 @@ async function writeJson(filePath, payload) {
   await writeFile(filePath, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
 }
 
-function existingJsonFilesPresent() {
-  return existsSync(marketJsonPath) && existsSync(chartDataJsonPath);
+function previousJsonFilesPresent() {
+  return existsSync(previousMarketJsonPath) && existsSync(previousChartDataJsonPath);
+}
+
+function resolveProjectPath(configuredPath, fallbackPath) {
+  const target = configuredPath || fallbackPath;
+  return path.isAbsolute(target) ? target : path.resolve(projectRoot, target);
 }
 
 function formatTaipeiDateTime(date = new Date()) {
@@ -568,7 +581,12 @@ function normalizeDateTime(value) {
 main().catch(async (error) => {
   console.warn(`[market-data] Update failed: ${error.message}`);
 
-  if (existingJsonFilesPresent()) {
+  if (strictMode) {
+    process.exitCode = 1;
+    return;
+  }
+
+  if (previousJsonFilesPresent()) {
     console.warn("[market-data] Keeping existing public/data/*.json files.");
     return;
   }

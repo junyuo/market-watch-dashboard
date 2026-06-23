@@ -9,6 +9,7 @@ const requestHeaders = {
 export async function fetchTwseDailySnapshot() {
   const response = await fetch(TWSE_STOCK_DAY_ALL_URL, {
     headers: requestHeaders,
+    signal: AbortSignal.timeout(10000),
   });
 
   if (!response.ok) {
@@ -18,13 +19,16 @@ export async function fetchTwseDailySnapshot() {
   return response.json();
 }
 
-export async function fetchInstitutionalSummary(date) {
+export async function fetchInstitutionalSummary(date, options = {}) {
   const url = new URL(TWSE_INSTITUTIONAL_SUMMARY_URL);
   url.searchParams.set("dayDate", date);
   url.searchParams.set("type", "day");
   url.searchParams.set("response", "json");
 
-  const response = await fetch(url, { headers: requestHeaders });
+  const response = await fetch(url, {
+    headers: requestHeaders,
+    signal: AbortSignal.timeout(options.timeoutMs ?? 10000),
+  });
   if (!response.ok) {
     throw new Error(`TWSE institutional summary failed: ${response.status} ${response.statusText}`);
   }
@@ -51,15 +55,22 @@ export async function fetchInstitutionalSummary(date) {
 
 export async function fetchForeignInvestorFlowSeries(options = {}) {
   const lookbackDays = options.lookbackDays ?? 45;
+  const totalTimeoutMs = options.totalTimeoutMs ?? 60000;
+  const startedAt = Date.now();
   const endDate = options.endDate ? parseDate(options.endDate) : new Date();
   const results = [];
 
   for (let offset = 0; offset < lookbackDays; offset += 1) {
+    if (Date.now() - startedAt >= totalTimeoutMs) {
+      console.warn(`[market-data] TWSE foreign flow lookup stopped after ${totalTimeoutMs / 1000} seconds`);
+      break;
+    }
     const date = new Date(endDate);
     date.setDate(date.getDate() - offset);
 
     try {
-      const summary = await fetchInstitutionalSummary(formatDate(date));
+      const remainingMs = Math.max(1000, totalTimeoutMs - (Date.now() - startedAt));
+      const summary = await fetchInstitutionalSummary(formatDate(date), { timeoutMs: Math.min(10000, remainingMs) });
       results.push({
         date: toIsoDate(summary.date),
         value: summary.netAmount,

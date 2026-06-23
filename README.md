@@ -128,13 +128,20 @@ ${BASE_URL}data/chartData.json
 npm run update:data
 ```
 
-等同於：
+此指令會執行完整的有限更新迴圈。若只需執行底層原始抓取，可使用：
 
 ```bash
-node scripts/fetch-market-data.mjs
+npm run fetch:data
 ```
 
-執行成功後會更新 `public/data/market.json` 與 `public/data/chartData.json`。
+完整更新流程會先從 GitHub Pages 讀取前一次有效 JSON，下載失敗時才使用 repository 內的 JSON。抓取結果先寫入 `.market-data-work/`，通過驗證且內容確實有變化後，才更新 `public/data/market.json` 與 `public/data/chartData.json`。
+
+資料驗證與測試指令：
+
+```bash
+npm run validate:data
+npm run test:data
+```
 
 ### GitHub Actions 排程
 
@@ -161,11 +168,13 @@ workflow 會依序執行：
 1. checkout
 2. setup node
 3. `npm ci`
-4. `node scripts/fetch-market-data.mjs`
-5. `npm run build`
-6. deploy GitHub Pages
+4. 下載前一次 Pages JSON，檢查並抓取候選資料
+5. 驗證失敗時修補缺漏並重試，最多 3 次、每次間隔 2 分鐘
+6. 有有效新資料時執行 `npm run build`
+7. 再次驗證 `dist/data/*.json`
+8. 驗證通過後部署 GitHub Pages
 
-資料抓取步驟使用容錯設計；如果公開資料來源暫時失敗，會顯示 warning，不讓整個部署流程因行情抓取失敗而中斷。
+若資料內容沒有實質變化，workflow 會成功結束並跳過部署。若 3 次都無法取得有效資料，workflow 會標記失敗且不部署，線上網站維持前一次有效版本。整個 job 最長 20 分鐘，不會形成無限迴圈。
 
 ## 資料來源與 Symbol Mapping
 

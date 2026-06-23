@@ -15,7 +15,10 @@ export async function fetchYahooChart(symbol, options = {}) {
   url.searchParams.set("includePrePost", "false");
   url.searchParams.set("events", "history");
 
-  const response = await fetch(url, { headers: requestHeaders });
+  const response = await fetch(url, {
+    headers: requestHeaders,
+    signal: AbortSignal.timeout(options.timeoutMs ?? 20000),
+  });
   if (!response.ok) {
     throw new Error(`Yahoo Finance ${symbol} failed: ${response.status} ${response.statusText}`);
   }

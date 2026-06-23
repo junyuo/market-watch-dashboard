@@ -4,7 +4,7 @@ export async function fetchFredCsv(seriesId) {
   const url = new URL(FRED_CSV_BASE_URL);
   url.searchParams.set("id", seriesId);
 
-  const response = await fetch(url);
+  const response = await fetch(url, { signal: AbortSignal.timeout(20000) });
   if (!response.ok) {
     throw new Error(`FRED ${seriesId} failed: ${response.status} ${response.statusText}`);
   }
