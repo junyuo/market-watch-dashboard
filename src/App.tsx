@@ -115,6 +115,7 @@ function App() {
         hideNotes
         showTechnicalMetrics
         showTechnicalRiskHint
+        formatPriceWithThousandsSeparator
       />
 
       <MarketSection
