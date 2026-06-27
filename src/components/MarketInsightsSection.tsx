@@ -14,14 +14,14 @@ import {
   YAxis,
 } from "recharts";
 import type { DashboardChartData, TimeRange } from "../data/chartData";
+import type { DashboardMarketData, MarketItem } from "../data/marketData";
 import {
   alignByDate,
   formatPercent,
-  getAnySeries,
   getSeries,
   normalizeSeries,
+  numericValue,
   periodReturn,
-  periodSpread,
   round,
   timeRanges,
   type InsightCardData,
@@ -29,30 +29,33 @@ import {
 } from "../utils/marketInsights";
 
 type MarketInsightsSectionProps = {
+  marketData: DashboardMarketData;
   chartData: DashboardChartData;
 };
 
 const chartColors = ["#2563eb", "#dc2626", "#16a34a", "#9333ea", "#f59e0b"];
 
-export function MarketInsightsSection({ chartData }: MarketInsightsSectionProps) {
+export function MarketInsightsSection({ marketData, chartData }: MarketInsightsSectionProps) {
   const [selectedRange, setSelectedRange] = useState<TimeRange>("1M");
 
   const tw0050 = useMemo(() => buildTw0050Insight(chartData, selectedRange), [chartData, selectedRange]);
   const us00646 = useMemo(() => buildUs00646Breakdown(chartData, selectedRange), [chartData, selectedRange]);
-  const telecom = useMemo(() => buildTelecomComparison(chartData, selectedRange), [chartData, selectedRange]);
-  const fx = useMemo(() => buildFxMiniCards(chartData, selectedRange), [chartData, selectedRange]);
+  const aiHeatmap = useMemo(() => buildAiSupplyChainHeatmap(marketData.aiSupplyChainItems ?? []), [marketData.aiSupplyChainItems]);
+  const foreignFlow = useMemo(() => buildForeignFlowInfographic(marketData), [marketData]);
 
   const insightCards: InsightCardData[] = [
     tw0050.card,
     us00646.card,
+    aiHeatmap.card,
+    foreignFlow.card,
   ];
 
   return (
     <section className="dashboard-section insights-section">
       <div className="section-heading section-heading--with-control">
         <div>
-          <h2>線圖區</h2>
-          <p>用公開市場資料整理背離、報酬來源與風險狀態。</p>
+          <h2>市場訊號 infographic</h2>
+          <p>用公開市場資料整理主因、背離、供應鏈熱度與資金方向。</p>
         </div>
         <div className="range-control" aria-label="市場洞察時間範圍">
           {timeRanges.map((range) => (
@@ -139,24 +142,35 @@ export function MarketInsightsSection({ chartData }: MarketInsightsSectionProps)
 
         <article className="chart-card insight-panel">
           <PanelHeader
-            title="電信防禦性比較"
-            description="比較 2412、3045、4904 與加權指數的區間報酬與波動幅度。"
-            updatedAt={chartData.updatedAt}
+            title="AI 供應鏈熱度地圖"
+            description="依 HBM、CoWoS、AI Server、Power Electronics 分組，觀察區間報酬與 Bias 熱度。"
+            updatedAt={marketData.updatedAt}
           />
-          {telecom.hasData ? (
+          {aiHeatmap.hasData ? (
             <>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={telecom.rows} margin={{ top: 8, right: 18, bottom: 8, left: 0 }}>
-                  <CartesianGrid stroke="#d8dee9" strokeDasharray="4 4" vertical={false} />
-                  <XAxis dataKey="symbol" tick={{ fontSize: 12 }} tickLine={false} />
-                  <YAxis tick={{ fontSize: 12 }} tickLine={false} width={56} />
-                  <Tooltip formatter={(value, name) => [`${value}%`, name]} />
-                  <Legend verticalAlign="bottom" height={36} />
-                  <Bar dataKey="return" name="區間報酬" fill="#2563eb" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="volatility" name="波動幅度" fill="#f59e0b" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-              <InsightSummary text={telecom.summary} metrics={telecom.metrics} />
+              <div className="heatmap-grid">
+                {aiHeatmap.groups.map((group) => (
+                  <div key={group.category} className="heatmap-group">
+                    <div className="heatmap-group__header">
+                      <strong>{group.category}</strong>
+                      <span>平均 {formatPercent(group.averageReturn)}</span>
+                    </div>
+                    <div className="heatmap-cells">
+                      {group.items.map((item) => (
+                        <div key={item.symbol} className={`heatmap-cell heatmap-cell--${item.level}`}>
+                          <div>
+                            <strong>{item.symbol}</strong>
+                            <span>{item.name}</span>
+                          </div>
+                          <b>{formatPercent(item.returnValue)}</b>
+                          <small>Bias {formatPercent(item.bias)}</small>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <InsightSummary text={aiHeatmap.summary} metrics={aiHeatmap.metrics} />
             </>
           ) : (
             <EmptyInsight />
@@ -165,19 +179,34 @@ export function MarketInsightsSection({ chartData }: MarketInsightsSectionProps)
 
         <article className="chart-card insight-panel">
           <PanelHeader
-            title="美元壓力與匯率小卡"
-            description="USD/TWD 保留為 00646 匯率貢獻 proxy；JPY/TWD 降級為小卡觀察。"
-            updatedAt={chartData.updatedAt}
+            title="外資資金方向"
+            description="把外資買賣超表格轉成 1D、5D、1M 資金方向條，快速觀察資金流向。"
+            updatedAt={marketData.updatedAt}
           />
-          <div className="fx-mini-grid">
-            {fx.map((item) => (
-              <div key={item.symbol} className="fx-mini-card">
-                <span>{item.label}</span>
-                <strong>{formatPercent(item.returnValue)}</strong>
-                <p>{item.description}</p>
+          {foreignFlow.hasData ? (
+            <>
+              <div className="flow-bars">
+                {foreignFlow.bars.map((bar) => (
+                  <div key={bar.label} className="flow-bar-row">
+                    <span>{bar.label}</span>
+                    <div className="flow-bar-track" aria-hidden="true">
+                      <i
+                        className={bar.value >= 0 ? "flow-bar flow-bar--buy" : "flow-bar flow-bar--sell"}
+                        style={{
+                          width: `${bar.width}%`,
+                          marginLeft: bar.value >= 0 ? "50%" : `${50 - bar.width}%`,
+                        }}
+                      />
+                    </div>
+                    <strong className={bar.value >= 0 ? "trend-up" : "trend-down"}>{formatAmount(bar.value)} 億</strong>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+              <InsightSummary text={foreignFlow.summary} metrics={foreignFlow.metrics} />
+            </>
+          ) : (
+            <EmptyInsight />
+          )}
         </article>
       </div>
     </section>
@@ -311,62 +340,118 @@ function buildUs00646Breakdown(chartData: DashboardChartData, range: TimeRange) 
   };
 }
 
-function buildTelecomComparison(chartData: DashboardChartData, range: TimeRange) {
-  const definitions = [
-    { symbol: "2412.TW", label: "2412" },
-    { symbol: "3045.TW", label: "3045" },
-    { symbol: "4904.TW", label: "4904" },
-    { symbol: "TAIEX", label: "加權" },
-  ];
-  const rows = definitions
-    .map((definition) => {
-      const series = getAnySeries(chartData, definition.symbol);
+function buildAiSupplyChainHeatmap(items: MarketItem[]) {
+  const validItems = items
+    .map((item) => {
+      const returnValue = numericValue(item.period1m);
+      const bias = numericValue(item.bias ?? "N/A");
       return {
-        symbol: definition.label,
-        return: round(periodReturn(series, range) ?? 0),
-        volatility: round(periodSpread(series, range) ?? 0),
-        hasData: periodReturn(series, range) !== null && periodSpread(series, range) !== null,
+        symbol: item.symbol,
+        name: item.name,
+        category: item.category,
+        returnValue,
+        bias,
+        level: heatLevel(returnValue, bias),
       };
     })
-    .filter((row) => row.hasData);
+    .filter((item) => item.returnValue !== null || item.bias !== null);
 
-  const telecomRows = rows.filter((row) => row.symbol !== "加權");
-  const market = rows.find((row) => row.symbol === "加權");
-  const avgTelecomVolatility = telecomRows.length
-    ? telecomRows.reduce((sum, row) => sum + row.volatility, 0) / telecomRows.length
-    : null;
-  const defensive = avgTelecomVolatility !== null && market ? avgTelecomVolatility < market.volatility : false;
+  const categories = Array.from(new Set(validItems.map((item) => item.category)));
+  const groups = categories.map((category) => {
+    const groupItems = validItems.filter((item) => item.category === category);
+    const returns = groupItems.map((item) => item.returnValue).filter((value): value is number => value !== null);
+    return {
+      category,
+      averageReturn: returns.length ? round(returns.reduce((sum, value) => sum + value, 0) / returns.length) : null,
+      items: groupItems,
+    };
+  });
+  const rankedGroups = [...groups].sort((a, b) => (b.averageReturn ?? -Infinity) - (a.averageReturn ?? -Infinity));
+  const leader = rankedGroups.find((group) => group.averageReturn !== null);
+  const hotItems = validItems.filter((item) => (item.returnValue ?? 0) >= 10 || (item.bias ?? 0) >= 10).length;
+  const hasData = validItems.length > 0;
 
   return {
-    hasData: rows.length >= 3,
-    rows,
-    summary: rows.length >= 3
-      ? defensive
-        ? "電信股波動低於大盤，具防禦性，但上漲參與度有限。"
-        : "電信股波動未明顯低於大盤，防禦性訊號不明顯。"
+    hasData,
+    groups,
+    summary: hasData && leader
+      ? `${leader.category} 近 1 月平均表現相對較強；高熱度標的共 ${hotItems} 檔，需搭配 Bias 觀察是否偏熱。`
       : "資料不足，不產生判讀",
     metrics: [
-      { label: "電信平均波動", value: avgTelecomVolatility === null ? "資料不足" : `${round(avgTelecomVolatility)}%` },
-      { label: "大盤波動", value: market ? `${market.volatility}%` : "資料不足" },
+      { label: "最強分類", value: leader ? leader.category : "資料不足" },
+      { label: "高熱度檔數", value: hasData ? `${hotItems} 檔` : "資料不足" },
+      { label: "觀察標的", value: hasData ? `${validItems.length} 檔` : "資料不足" },
     ],
+    card: {
+      title: "AI 供應鏈熱度",
+      status: leader ? leader.category : "資料不足",
+      description: leader ? `${leader.category} 目前在 AI 供應鏈中相對強勢。` : "資料不足，不產生判讀。",
+      level: hotItems >= 6 ? "warning" : "neutral",
+      metrics: [
+        { label: "高熱度檔數", value: hasData ? `${hotItems} 檔` : "資料不足" },
+      ],
+    } satisfies InsightCardData,
   };
 }
 
-function buildFxMiniCards(chartData: DashboardChartData, range: TimeRange) {
-  const usd = periodReturn(getSeries(chartData, "usdTwd", "USD/TWD"), range);
-  const jpy = periodReturn(getSeries(chartData, "jpyTwd", "JPY/TWD"), range);
-  return [
-    {
-      symbol: "USD/TWD",
-      label: "USD/TWD 美元壓力",
-      returnValue: usd,
-      description: usd === null ? "資料不足，不產生判讀" : usd > 0 ? "美元相對台幣走強，海外 ETF 匯率貢獻偏正。" : "美元相對台幣走弱，海外 ETF 匯率貢獻偏弱。",
-    },
-    {
-      symbol: "JPY/TWD",
-      label: "JPY/TWD 小卡",
-      returnValue: jpy,
-      description: "日圓兌台幣先作為小型匯率觀察，不佔主要線圖區。",
-    },
+function buildForeignFlowInfographic(marketData: DashboardMarketData) {
+  const item = marketData.fxMacroItems.find((candidate) => candidate.symbol === "Foreign Flow");
+  const rawBars = [
+    { label: "當日", value: parseAmount(item?.price) },
+    { label: "較前日", value: parseAmount(item?.change) },
+    { label: "近 5 日", value: parseAmount(item?.period5d) },
+    { label: "近 1 月", value: parseAmount(item?.period1m) },
   ];
+  const hasData = rawBars.every((bar) => bar.value !== null);
+  const maxAbs = Math.max(...rawBars.map((bar) => Math.abs(bar.value ?? 0)), 1);
+  const bars = rawBars.map((bar) => ({
+    label: bar.label,
+    value: bar.value ?? 0,
+    width: Math.max(3, Math.min(50, (Math.abs(bar.value ?? 0) / maxAbs) * 50)),
+  }));
+  const today = rawBars[0].value;
+  const monthly = rawBars[3].value;
+  const direction = today === null ? "資料不足" : today >= 0 ? "外資買超" : "外資賣超";
+
+  return {
+    hasData,
+    bars,
+    summary: hasData
+      ? `${direction}，近 1 月累計為 ${formatAmount(monthly ?? 0)} 億，資金方向可搭配美元與加權指數觀察。`
+      : "資料不足，不產生判讀",
+    metrics: [
+      { label: "當日", value: today === null ? "資料不足" : `${formatAmount(today)} 億` },
+      { label: "近 1 月", value: monthly === null ? "資料不足" : `${formatAmount(monthly)} 億` },
+    ],
+    card: {
+      title: "外資資金方向",
+      status: direction,
+      description: hasData ? "以 TWSE 外資買賣超觀察台股資金面方向。" : "資料不足，不產生判讀。",
+      level: today !== null && today < 0 ? "warning" : "neutral",
+      metrics: [
+        { label: "當日", value: today === null ? "資料不足" : `${formatAmount(today)} 億` },
+      ],
+    } satisfies InsightCardData,
+  };
+}
+
+function heatLevel(returnValue: number | null, bias: number | null) {
+  const heat = Math.max(returnValue ?? -Infinity, bias ?? -Infinity);
+  if (heat >= 30) return "hot";
+  if (heat >= 10) return "warm";
+  if ((returnValue ?? 0) < 0) return "cool";
+  return "neutral";
+}
+
+function parseAmount(value: MarketItem["price"] | undefined) {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+
+  const parsed = Number.parseFloat(String(value ?? "").replace(/,/g, ""));
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function formatAmount(value: number) {
+  return new Intl.NumberFormat("zh-TW", { maximumFractionDigits: 2 }).format(value);
 }

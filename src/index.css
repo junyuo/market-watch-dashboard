@@ -446,7 +446,7 @@ button {
 
 .insight-card-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
 }
 
@@ -626,6 +626,132 @@ button {
   gap: 12px;
 }
 
+.heatmap-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.heatmap-group {
+  display: grid;
+  gap: 8px;
+}
+
+.heatmap-group__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--text-strong);
+}
+
+.heatmap-group__header span {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.heatmap-cells {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.heatmap-cell {
+  display: grid;
+  gap: 8px;
+  min-height: 96px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 12px;
+}
+
+.heatmap-cell div {
+  display: grid;
+  gap: 2px;
+}
+
+.heatmap-cell strong {
+  color: var(--text-strong);
+  font-size: 0.95rem;
+}
+
+.heatmap-cell span,
+.heatmap-cell small {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.heatmap-cell b {
+  color: var(--text-strong);
+  font-size: 1.25rem;
+}
+
+.heatmap-cell--hot {
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+
+.heatmap-cell--warm {
+  border-color: #fed7aa;
+  background: #fff7ed;
+}
+
+.heatmap-cell--cool {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+}
+
+.flow-bars {
+  display: grid;
+  gap: 14px;
+}
+
+.flow-bar-row {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr) 120px;
+  gap: 12px;
+  align-items: center;
+}
+
+.flow-bar-row span {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.flow-bar-row strong {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.flow-bar-track {
+  position: relative;
+  height: 16px;
+  overflow: hidden;
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, transparent calc(50% - 1px), #94a3b8 calc(50% - 1px), #94a3b8 calc(50% + 1px), transparent calc(50% + 1px)),
+    #e2e8f0;
+}
+
+.flow-bar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: block;
+  border-radius: 999px;
+}
+
+.flow-bar--buy {
+  background: var(--up);
+}
+
+.flow-bar--sell {
+  background: var(--down);
+}
+
 .chart-card__header {
   display: flex;
   align-items: flex-start;
@@ -720,7 +846,8 @@ button {
 
   .insight-card-grid,
   .insight-layout,
-  .sparkline-grid {
+  .sparkline-grid,
+  .heatmap-cells {
     grid-template-columns: 1fr;
   }
 
@@ -760,6 +887,14 @@ button {
 
   .fx-mini-grid {
     grid-template-columns: 1fr;
+  }
+
+  .flow-bar-row {
+    grid-template-columns: 1fr;
+  }
+
+  .flow-bar-row strong {
+    text-align: left;
   }
 
   .range-control {

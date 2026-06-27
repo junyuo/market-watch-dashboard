@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { MarketSection } from "./components/MarketSection";
 import { ForeignFlowTable } from "./components/ForeignFlowTable";
+import { MarketInsightsSection } from "./components/MarketInsightsSection";
 import { RiskWeatherPanel } from "./components/RiskWeatherPanel";
 import { SummaryCard } from "./components/SummaryCard";
 import { fallbackChartData, type DashboardChartData } from "./data/chartData";
@@ -140,6 +141,8 @@ function App() {
         alignChangeColumns
         formatPriceWithThousandsSeparator
       />
+
+      <MarketInsightsSection marketData={marketData} chartData={chartData} />
 
       <MarketSection
         title="匯率與總經觀察區"

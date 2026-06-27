@@ -38,20 +38,20 @@ const series = (values: number[]): TimeSeriesPoint[] =>
   }));
 
 export const tw0050Chart: DashboardChart = {
-  id: "tw0050-relative",
+  id: "tw0050",
   title: "0050 vs 台積電 vs 加權指數",
   description: "以起點 100 正規化，比較台股大型權值股與指數相對走勢。",
   normalized: true,
   series: [
     {
       name: "元大台灣50",
-      symbol: "0050",
+      symbol: "0050.TW",
       relatedAsset: "0050",
       data: series([100, 102, 101, 104, 106, 105, 109, 111, 113, 116]),
     },
     {
       name: "台積電",
-      symbol: "2330",
+      symbol: "2330.TW",
       relatedAsset: "0050",
       data: series([100, 103, 102, 106, 111, 108, 113, 117, 121, 126]),
     },
@@ -65,20 +65,20 @@ export const tw0050Chart: DashboardChart = {
 };
 
 export const us00646Chart: DashboardChart = {
-  id: "us00646-relative",
+  id: "us00646",
   title: "00646 vs S&P 500 vs USD/TWD",
   description: "以起點 100 正規化，觀察美股本身與匯率對 00646 的相對影響。",
   normalized: true,
   series: [
     {
       name: "元大 S&P 500",
-      symbol: "00646",
+      symbol: "00646.TW",
       relatedAsset: "00646",
       data: series([100, 101, 103, 102, 104, 106, 107, 108, 110, 111]),
     },
     {
       name: "S&P 500",
-      symbol: "SPX",
+      symbol: "SPY",
       relatedAsset: "00646",
       data: series([100, 101, 102, 101, 103, 105, 106, 108, 109, 110]),
     },
@@ -92,7 +92,7 @@ export const us00646Chart: DashboardChart = {
 };
 
 export const usdTwdChart: DashboardChart = {
-  id: "usd-twd-rate",
+  id: "usdTwd",
   title: "USD/TWD 美元兌台幣",
   description: "使用實際匯率數值，觀察美元兌台幣趨勢。",
   normalized: false,
@@ -107,7 +107,7 @@ export const usdTwdChart: DashboardChart = {
 };
 
 export const jpyTwdChart: DashboardChart = {
-  id: "jpy-twd-rate",
+  id: "jpyTwd",
   title: "JPY/TWD 日圓兌台幣",
   description: "使用實際匯率數值，觀察日圓兌台幣趨勢。",
   normalized: false,
@@ -122,14 +122,14 @@ export const jpyTwdChart: DashboardChart = {
 };
 
 export const cht2412Chart: DashboardChart = {
-  id: "cht-price-yield",
+  id: "cht2412",
   title: "2412 中華電信股價",
   description: "使用實際股價數值，觀察中華電信股價趨勢。",
   normalized: false,
   series: [
     {
       name: "中華電信股價",
-      symbol: "2412",
+      symbol: "2412.TW",
       relatedAsset: "2412",
       data: series([121.5, 122, 123.5, 123, 124, 125.5, 126, 125, 126.2, 126.5]),
     },
@@ -137,7 +137,7 @@ export const cht2412Chart: DashboardChart = {
 };
 
 export const riskChart: DashboardChart = {
-  id: "risk-relative",
+  id: "risk",
   title: "市場風險指標：VIX vs TNX vs GLD",
   description: "以起點 100 正規化，比較市場恐慌、利率壓力與避險情緒。",
   normalized: true,
