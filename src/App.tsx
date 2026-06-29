@@ -142,7 +142,7 @@ function App() {
         formatPriceWithThousandsSeparator
       />
 
-      <MarketInsightsSection marketData={marketData} chartData={chartData} />
+      <MarketInsightsSection marketData={marketData} />
 
       <MarketSection
         title="匯率與總經觀察區"

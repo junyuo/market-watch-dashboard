@@ -1,51 +1,22 @@
-import { useMemo, useState } from "react";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Cell,
-  Legend,
-  Line,
-  LineChart,
-  ReferenceLine,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
-import type { DashboardChartData, TimeRange } from "../data/chartData";
+import { useMemo } from "react";
 import type { DashboardMarketData, MarketItem } from "../data/marketData";
 import {
-  alignByDate,
   formatPercent,
-  getSeries,
-  normalizeSeries,
   numericValue,
-  periodReturn,
   round,
-  timeRanges,
   type InsightCardData,
   type InsightMetric,
 } from "../utils/marketInsights";
 
 type MarketInsightsSectionProps = {
   marketData: DashboardMarketData;
-  chartData: DashboardChartData;
 };
 
-const chartColors = ["#2563eb", "#dc2626", "#16a34a", "#9333ea", "#f59e0b"];
-
-export function MarketInsightsSection({ marketData, chartData }: MarketInsightsSectionProps) {
-  const [selectedRange, setSelectedRange] = useState<TimeRange>("1M");
-
-  const tw0050 = useMemo(() => buildTw0050Insight(chartData, selectedRange), [chartData, selectedRange]);
-  const us00646 = useMemo(() => buildUs00646Breakdown(chartData, selectedRange), [chartData, selectedRange]);
+export function MarketInsightsSection({ marketData }: MarketInsightsSectionProps) {
   const aiHeatmap = useMemo(() => buildAiSupplyChainHeatmap(marketData.aiSupplyChainItems ?? []), [marketData.aiSupplyChainItems]);
   const foreignFlow = useMemo(() => buildForeignFlowInfographic(marketData), [marketData]);
 
   const insightCards: InsightCardData[] = [
-    tw0050.card,
-    us00646.card,
     aiHeatmap.card,
     foreignFlow.card,
   ];
@@ -55,19 +26,7 @@ export function MarketInsightsSection({ marketData, chartData }: MarketInsightsS
       <div className="section-heading section-heading--with-control">
         <div>
           <h2>市場訊號 infographic</h2>
-          <p>用公開市場資料整理主因、背離、供應鏈熱度與資金方向。</p>
-        </div>
-        <div className="range-control" aria-label="市場洞察時間範圍">
-          {timeRanges.map((range) => (
-            <button
-              key={range}
-              className={selectedRange === range ? "is-active" : ""}
-              type="button"
-              onClick={() => setSelectedRange(range)}
-            >
-              {range}
-            </button>
-          ))}
+          <p>用公開市場資料整理供應鏈熱度與資金方向。</p>
         </div>
       </div>
 
@@ -81,65 +40,6 @@ export function MarketInsightsSection({ marketData, chartData }: MarketInsightsS
       </div>
 
       <div className="insight-layout">
-        <article className="chart-card insight-panel insight-panel--wide">
-          <PanelHeader
-            title="0050 權值主導度"
-            description="0050、台積電與加權指數正規化走勢，並觀察台積電相對 0050 超額報酬。"
-            updatedAt={chartData.updatedAt}
-          />
-          {tw0050.hasData ? (
-            <>
-              <ResponsiveContainer width="100%" height={320}>
-                <LineChart data={tw0050.rows} margin={{ top: 8, right: 18, bottom: 8, left: 0 }}>
-                  <CartesianGrid stroke="#d8dee9" strokeDasharray="4 4" vertical={false} />
-                  <XAxis dataKey="date" tick={{ fontSize: 12 }} tickLine={false} />
-                  <YAxis yAxisId="left" tick={{ fontSize: 12 }} tickLine={false} width={56} />
-                  <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 12 }} tickLine={false} width={56} />
-                  <Tooltip formatter={(value, name) => [value, name]} labelFormatter={(label) => `日期：${label}`} />
-                  <Legend verticalAlign="bottom" height={44} />
-                  <Line yAxisId="left" type="monotone" dataKey="0050" name="0050" stroke={chartColors[0]} strokeWidth={2.2} dot={false} connectNulls />
-                  <Line yAxisId="left" type="monotone" dataKey="TSMC" name="台積電" stroke={chartColors[1]} strokeWidth={2.2} dot={false} connectNulls />
-                  <Line yAxisId="left" type="monotone" dataKey="TAIEX" name="加權指數" stroke={chartColors[2]} strokeWidth={2.2} dot={false} connectNulls />
-                  <Line yAxisId="right" type="monotone" dataKey="excess" name="台積電相對 0050 超額報酬" stroke="#9333ea" strokeWidth={2} strokeDasharray="5 4" dot={false} connectNulls />
-                  <ReferenceLine yAxisId="right" y={0} stroke="#94a3b8" strokeDasharray="3 3" />
-                </LineChart>
-              </ResponsiveContainer>
-              <InsightSummary text={tw0050.summary} metrics={tw0050.metrics} />
-            </>
-          ) : (
-            <EmptyInsight />
-          )}
-        </article>
-
-        <article className="chart-card insight-panel">
-          <PanelHeader
-            title="00646 報酬來源拆解"
-            description="拆解美股、匯率與追蹤差異對 00646 區間報酬的影響。"
-            updatedAt={chartData.updatedAt}
-          />
-          {us00646.hasData ? (
-            <>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={us00646.breakdown} margin={{ top: 8, right: 18, bottom: 8, left: 0 }}>
-                  <CartesianGrid stroke="#d8dee9" strokeDasharray="4 4" vertical={false} />
-                  <XAxis dataKey="label" tick={{ fontSize: 12 }} tickLine={false} />
-                  <YAxis tick={{ fontSize: 12 }} tickLine={false} width={56} />
-                  <Tooltip formatter={(value) => [`${value}%`, "區間報酬"]} />
-                  <ReferenceLine y={0} stroke="#94a3b8" />
-                  <Bar dataKey="value" radius={[4, 4, 0, 0]}>
-                    {us00646.breakdown.map((item) => (
-                      <Cell key={item.label} fill={item.value >= 0 ? "#c2392f" : "#0f8a4b"} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-              <InsightSummary text={us00646.summary} metrics={us00646.metrics} />
-            </>
-          ) : (
-            <EmptyInsight />
-          )}
-        </article>
-
         <article className="chart-card insight-panel">
           <PanelHeader
             title="AI 供應鏈熱度地圖"
@@ -259,85 +159,6 @@ function InsightSummary({ text, metrics }: { text: string; metrics: InsightMetri
 
 function EmptyInsight() {
   return <div className="empty-chart">資料不足，不產生判讀</div>;
-}
-
-function buildTw0050Insight(chartData: DashboardChartData, range: TimeRange) {
-  const tw0050 = normalizeSeries(getSeries(chartData, "tw0050", "0050.TW"), range);
-  const tsmc = normalizeSeries(getSeries(chartData, "tw0050", "2330.TW"), range);
-  const taiex = normalizeSeries(getSeries(chartData, "tw0050", "TAIEX"), range);
-  const rows = alignByDate({ "0050": tw0050, TSMC: tsmc, TAIEX: taiex }).map((row) => ({
-    ...row,
-    excess: typeof row.TSMC === "number" && typeof row["0050"] === "number" ? round(row.TSMC - row["0050"]) : null,
-  }));
-  const excess = [...rows].reverse().find((row) => typeof row.excess === "number")?.excess as number | undefined;
-  const tsmcReturn = periodReturn(getSeries(chartData, "tw0050", "2330.TW"), range);
-  const tw0050Return = periodReturn(getSeries(chartData, "tw0050", "0050.TW"), range);
-  const hasData = rows.length > 1 && typeof excess === "number";
-  const strong = typeof excess === "number" && excess >= 3;
-
-  return {
-    hasData,
-    rows,
-    summary: hasData
-      ? strong
-        ? "台積電明顯強於 0050，代表近期 0050 上漲偏由半導體權值股推動。"
-        : "台積電相對 0050 未明顯擴大，0050 走勢較接近整體權值股表現。"
-      : "資料不足，不產生判讀",
-    metrics: [
-      { label: "台積電區間報酬", value: formatPercent(tsmcReturn) },
-      { label: "0050 區間報酬", value: formatPercent(tw0050Return) },
-      { label: "超額報酬", value: typeof excess === "number" ? `${round(excess)} 點` : "資料不足" },
-    ],
-    card: {
-      title: "台股權值主導度",
-      status: hasData ? (strong ? "台積電主導" : "權值分散") : "資料不足",
-      description: hasData ? (strong ? "台積電相對 0050 表現明顯較強。" : "0050 未明顯由單一權值股拉動。") : "資料不足，不產生判讀。",
-      level: hasData ? (strong ? "warning" : "neutral") : "neutral",
-      metrics: [
-        { label: "超額報酬", value: typeof excess === "number" ? `${round(excess)} 點` : "資料不足" },
-      ],
-    } satisfies InsightCardData,
-  };
-}
-
-function buildUs00646Breakdown(chartData: DashboardChartData, range: TimeRange) {
-  const etfReturn = periodReturn(getSeries(chartData, "us00646", "00646.TW"), range);
-  const spReturn = periodReturn(getSeries(chartData, "us00646", "SPY"), range);
-  const usdReturn = periodReturn(getSeries(chartData, "us00646", "USD/TWD"), range);
-  const tracking = etfReturn !== null && spReturn !== null && usdReturn !== null ? etfReturn - spReturn - usdReturn : null;
-  const hasData = [etfReturn, spReturn, usdReturn, tracking].every((item) => item !== null);
-  const mainDriver = hasData && Math.abs(spReturn ?? 0) >= Math.abs(usdReturn ?? 0) ? "美股上漲" : "匯率變化";
-
-  return {
-    hasData,
-    breakdown: [
-      { label: "S&P 500", value: round(spReturn ?? 0) },
-      { label: "USD/TWD", value: round(usdReturn ?? 0) },
-      { label: "追蹤差異", value: round(tracking ?? 0) },
-      { label: "00646", value: round(etfReturn ?? 0) },
-    ],
-    summary: hasData
-      ? mainDriver === "美股上漲"
-        ? "00646 區間報酬主要來自美股變化，匯率貢獻相對有限。"
-        : "00646 區間報酬中匯率變化影響較明顯。"
-      : "資料不足，不產生判讀",
-    metrics: [
-      { label: "00646", value: formatPercent(etfReturn) },
-      { label: "S&P 500 proxy", value: formatPercent(spReturn) },
-      { label: "USD/TWD", value: formatPercent(usdReturn) },
-      { label: "追蹤差異", value: formatPercent(tracking) },
-    ],
-    card: {
-      title: "美股 ETF 報酬來源",
-      status: hasData ? mainDriver : "資料不足",
-      description: hasData ? `目前 ${mainDriver} 對 00646 的區間表現較關鍵。` : "資料不足，不產生判讀。",
-      level: "neutral",
-      metrics: [
-        { label: "00646", value: formatPercent(etfReturn) },
-        { label: "USD/TWD", value: formatPercent(usdReturn) },
-      ],
-    } satisfies InsightCardData,
-  };
 }
 
 function buildAiSupplyChainHeatmap(items: MarketItem[]) {
